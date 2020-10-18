@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerRigidMovement : MonoBehaviour
 {
     private Rigidbody rb;
 
+    [Range(-1f , 1.0f)]
+    public float dir;
+
+
     public bool isConstantMovement;
+    public bool isAcceleration;
 
     public float MovementSpeed = 10f;
 
@@ -24,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(isConstantMovement)
         {
-            MovePlayer(1f);
+            MovePlayer(dir);
         }
         else
         {
@@ -38,7 +43,15 @@ public class PlayerMovement : MonoBehaviour
     private void MovePlayer(float direction)
     {
         float speed = direction * MovementSpeed * Time.deltaTime;
-        rb.velocity += new Vector3(speed , 0 , 0);
+
+        if(isAcceleration)
+        {
+            rb.velocity += new Vector3(speed , 0 , 0);
+        }
+        else
+        {
+            rb.velocity = new Vector3(speed * 100 , 0 , 0);
+        }
     }
 
     
