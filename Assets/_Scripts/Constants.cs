@@ -6,4 +6,5 @@ public static class Constants
 {
     public static string HORIONTAL = "Horizontal";
     public static string VERTICAL = "Vertical";
+    public static string OBSTILES = "Obsticles";
 }
