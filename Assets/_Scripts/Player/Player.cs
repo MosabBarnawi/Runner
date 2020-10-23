@@ -8,6 +8,13 @@ public class Player : LivingEntity
     public LayerMask layerMask;
     public float RaycastDistance = 2f;
 
+    private bool hasTakenDamage = false;
+
+    [Header("Debug Options")]
+    public bool isDebugEnabled;
+
+    private IMove imove;
+
     #region Unity Callbacks
     protected override void Start()
     {
@@ -15,20 +22,35 @@ public class Player : LivingEntity
         OnDeath += PlayerDeath;
         OnAddHealth += AddHealthFX;
         OnTakeHit += TakeHit;
+
+        imove = GetComponent<IMove>();
+
+        if (imove == null)
+        {
+            Debug.LogError("IMove Not Found");
+        }
     }
 
     private void FixedUpdate()
     {
+        if (isDebugEnabled)
+        {
+            Debug.DrawRay(transform.position , transform.TransformDirection(Vector3.right * RaycastDistance) , Color.red);
+        }
+
         if (!isDead)
         {
             RaycastHit hit;
 
             if (Physics.Raycast(transform.position , transform.TransformDirection(Vector3.right) , out hit , RaycastDistance , layerMask))
             {
-                TakeDamage(1f);
+                if (!hasTakenDamage)
+                {
+                    TakeDamage(1f);
+                    imove.StopMovement();
+                    hasTakenDamage = true;
+                }
             }
-
-            Debug.DrawRay(transform.position , transform.TransformDirection(Vector3.right * RaycastDistance) , Color.red);
         }
     }
 
@@ -46,7 +68,8 @@ public class Player : LivingEntity
 
     private void PlayerDeath()
     {
-        Debug.Log("Died");   
+        Debug.Log("Died");
+        imove.StopMovement();
         // DISABLE MOVEMENT
     }
 

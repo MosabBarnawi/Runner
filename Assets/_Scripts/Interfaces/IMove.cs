@@ -3,4 +3,5 @@
 public interface IMove
 {
     void SetVelocity( Vector3 VelocityVector );
+    void StopMovement();
 }
