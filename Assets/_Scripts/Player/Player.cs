@@ -44,22 +44,22 @@ public class Player : LivingEntity
 
             if (Physics.Raycast(transform.position , transform.TransformDirection(Vector3.right) , out hit , RaycastDistance , layerMask))
             {
-                if (!hasTakenDamage)
-                {
-                    TakeDamage(1f);
-                    imove.StopMovement();
-                    hasTakenDamage = true;
-                }
+                //if (!hasTakenDamage)
+                //{
+                //    TakeDamage(1f);
+                //    imove.StopMovement();
+                //    hasTakenDamage = true;
+                //}
             }
         }
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            TakeDamage(1f);
-        }
+        //if (Input.GetKeyDown(KeyCode.K))
+        //{
+        //    TakeDamage(1f);
+        //}
     }
     #endregion
 
