@@ -12,37 +12,53 @@ public class PlayerVectorMove : MonoBehaviour, IMove
 
     private bool canMove = true;
 
+    [Header("Animator")]
+    public Animator Anim;
+
     #region Unity Callbacks
 
     void Start()
     {
-
+        ErrorChecking();
     }
 
     void Update()
     {
-        if(canMove)
+        if (canMove)
         {
             if (isConstantMovement)
             {
                 MovePlayer(dir);
+                Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , dir);
             }
             else
             {
-                if (Input.GetAxis(Constants.HORIONTAL) != 0)
+                float direction = Input.GetAxis(Constants.HORIONTAL);
+
+                if (direction != 0)
                 {
-                    float direction = Input.GetAxis(Constants.HORIONTAL);
                     //Vector3 velocityVector = transform.position + new Vector3(direction * MovementSpeed * Time.deltaTime , 0 , 0).normalized;
                     //SetVelocity(velocityVector);
                     MovePlayer(direction);
                 }
+
+                Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
             }
+        }
+        else
+        {
+            Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , 0);
         }
     }
 
     #endregion
 
     #region Private API
+
+    private void ErrorChecking()
+    {
+        if (Anim == null) Debug.LogError("Anim Not Assigned");
+    }
 
     private void MovePlayer( float speed )
     {
@@ -56,7 +72,7 @@ public class PlayerVectorMove : MonoBehaviour, IMove
     #region Public API
     public void SetVelocity( Vector3 VelocityVector )
     {
-        transform.position += VelocityVector;
+        //transform.position += VelocityVector;
     }
 
     public void StopMovement()
