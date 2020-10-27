@@ -9,5 +9,4 @@ public static class Constants
     public static string OBSTILES = "Obsticles";
 
     public static string ANIM_MOVEMENT_SPEED = "MovementSpeed";
-    ////
 }
