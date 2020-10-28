@@ -12,13 +12,17 @@ public class PlayerVectorMove : MonoBehaviour, IMove
 
     private bool canMove = true;
 
-    [Header("Animator")]
-    public Animator Anim;
+    //private Player player;
+    //[Header("Animator")]
+    private Animator playerAnim;
 
     #region Unity Callbacks
 
     void Start()
     {
+        //player = GetComponent<Player>();
+        playerAnim = GetComponent<Player>().Anim;
+
         ErrorChecking();
     }
 
@@ -29,7 +33,7 @@ public class PlayerVectorMove : MonoBehaviour, IMove
             if (isConstantMovement)
             {
                 MovePlayer(dir);
-                Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , dir);
+                playerAnim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , dir);
             }
             else
             {
@@ -42,12 +46,12 @@ public class PlayerVectorMove : MonoBehaviour, IMove
                     MovePlayer(direction);
                 }
 
-                Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
+                playerAnim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
             }
         }
         else
         {
-            Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , 0);
+            playerAnim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , 0);
         }
     }
 
@@ -57,7 +61,8 @@ public class PlayerVectorMove : MonoBehaviour, IMove
 
     private void ErrorChecking()
     {
-        if (Anim == null) Debug.LogError("Anim Not Assigned");
+        if (playerAnim == null) Debug.LogError("Anim Not Assigned");
+        //if (player == null) Debug.LogError("Player Script not found");
     }
 
     private void MovePlayer( float speed )
