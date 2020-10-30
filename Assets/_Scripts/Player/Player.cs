@@ -4,25 +4,31 @@ using UnityEngine;
 
 public class Player : LivingEntity
 {
-    [Header("Ray Casting")]
-    [SerializeField]
-    LayerMask ObsticleLayerMask;
-    public float RaycastDistance = 2f;
-
-    [SerializeField]
-    LayerMask GroundLayerMask;
-    public float GroundRaycastDistance = 0.01f;
-
-    private BoxCollider boxCollider;
-    private bool hasTakenDamage = false;
-
     [Header("Debug Options")]
     public bool isDebugEnabled;
 
+    [Space(10)]
+    [Header("Ray Casting")]
+    [SerializeField]
+    private LayerMask ObsticleLayerMask;
+    [SerializeField]
+    private float RaycastDistance = 1.5f;
+
+    [Space(5)]
+    [SerializeField]
+    private LayerMask GroundLayerMask;
+    [SerializeField]
+    private float GroundRaycastDistance = 0.5f;
+
+    [Space(10)]
     [Header("Animator")]
     public Animator Anim;
 
+    [Header("Caching")]
+    private BoxCollider _boxCollider;
     private IMove imove;
+
+    private bool hasTakenDamage = false;
 
     #region Unity Callbacks
     protected override void Start()
@@ -41,7 +47,7 @@ public class Player : LivingEntity
 
         if (Anim == null) Debug.LogError("Player Animator Not Assigned");
 
-        boxCollider = GetComponent<BoxCollider>();
+        _boxCollider = GetComponent<BoxCollider>();
     }
 
     private void FixedUpdate()
@@ -87,7 +93,8 @@ public class Player : LivingEntity
 
         //bool hitGround = Physics.Raycast(boxCollider.bounds.center , Vector3.down , boxCollider.bounds.extents.y + GroundRaycastDistance , GroundLayerMask);
         //bool hitGround = Physics.BoxCast(boxCollider.bounds.center , boxCollider.bounds.size , Vector3.down , Quaternion.identity , GroundRaycastDistance , GroundLayerMask);
-        bool hitGround = Physics.BoxCast(boxCollider.bounds.center , new Vector3(0.5f , 0.5f , 0.5f) , Vector3.down , transform.rotation , GroundRaycastDistance , GroundLayerMask);
+        //bool hitGround = Physics.BoxCast(boxCollider.bounds.center , new Vector3(0.5f , 0.5f , 0.5f) , Vector3.down , transform.rotation , GroundRaycastDistance , GroundLayerMask);
+        bool hitGround = Physics.BoxCast(_boxCollider.bounds.center , _boxCollider.bounds.size.normalized , Vector3.down , transform.rotation , GroundRaycastDistance , GroundLayerMask);
         Color rayColor = Color.green;
 
         if (hitGround)
@@ -99,9 +106,9 @@ public class Player : LivingEntity
         //Debug.DrawRay(boxCollider.bounds.center - new Vector3(0.5f , 0) , Vector3.down * ( 0.5f + GroundRaycastDistance ) , rayColor);
         //Debug.DrawRay(boxCollider.bounds.center - new Vector3(0.5f , 0.5f) , Vector3.right * ( 0.5f ) , rayColor);
 
-        Debug.DrawRay(boxCollider.bounds.center + new Vector3(boxCollider.bounds.extents.x , 0) , Vector3.down * ( boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
-        Debug.DrawRay(boxCollider.bounds.center - new Vector3(boxCollider.bounds.extents.x , 0) , Vector3.down * ( boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
-        Debug.DrawRay(boxCollider.bounds.center - new Vector3(boxCollider.bounds.extents.x , boxCollider.bounds.extents.y) , Vector3.right * ( boxCollider.bounds.extents.x ) , rayColor);
+        Debug.DrawRay(_boxCollider.bounds.center + new Vector3(_boxCollider.bounds.extents.x , 0) , Vector3.down * ( _boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
+        Debug.DrawRay(_boxCollider.bounds.center - new Vector3(_boxCollider.bounds.extents.x , 0) , Vector3.down * ( _boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
+        Debug.DrawRay(_boxCollider.bounds.center - new Vector3(_boxCollider.bounds.extents.x , _boxCollider.bounds.extents.y) , Vector3.right * ( _boxCollider.bounds.extents.x ) , rayColor);
 
         return hitGround;
     }
