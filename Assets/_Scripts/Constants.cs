@@ -5,9 +5,10 @@ using UnityEngine;
 public static class Constants
 {
     /// CONTROLS ///
-    public static string HORIONTAL = "Horizontal";
-    public static string VERTICAL = "Vertical";
-    public static string JUMP = "Jump";
+    public static string INPUT_HORIONTAL = "Horizontal";
+    public static string INPUT_VERTICAL = "Vertical";
+    public static string INPUT_JUMP = "Jump";
+    public static string INPUT_ATTACK = "Attack";
     /// TAGS ///
     public static string OBSTILES = "Obsticles";
 

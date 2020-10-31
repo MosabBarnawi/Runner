@@ -2,6 +2,8 @@
 
 public interface IMove
 {
-    void SetVelocity( Vector3 VelocityVector );
+    void SetVelocity( float VelocityVector );
     void StopMovement();
+    void SetJumpInput( bool pressed);
+    void SetIsGrounded(bool grounded);
 }

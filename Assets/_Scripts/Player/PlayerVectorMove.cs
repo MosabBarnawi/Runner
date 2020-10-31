@@ -37,7 +37,7 @@ public class PlayerVectorMove : MonoBehaviour, IMove
             }
             else
             {
-                float direction = Input.GetAxis(Constants.HORIONTAL);
+                float direction = Input.GetAxis(Constants.INPUT_HORIONTAL);
 
                 if (direction != 0)
                 {
@@ -83,6 +83,21 @@ public class PlayerVectorMove : MonoBehaviour, IMove
     public void StopMovement()
     {
         canMove = false;
+    }
+
+    public void SetVelocity( float VelocityVector )
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void SetJumpInput( bool pressed )
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void SetIsGrounded( bool grounded )
+    {
+        throw new System.NotImplementedException();
     }
 
     #endregion

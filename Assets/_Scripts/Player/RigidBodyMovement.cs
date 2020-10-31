@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class PlayerRigidMovement : MonoBehaviour, IMove
+public class RigidBodyMovement : MonoBehaviour, IMove
 {
     [Header("Movement Controls")]
 
@@ -20,9 +20,9 @@ public class PlayerRigidMovement : MonoBehaviour, IMove
     [SerializeField]
     private float MovementSpeed = 10f;
 
+    public float direction;
+
     private bool canMove = true;
-    private Player _player;
-    private Animator _playerAnim;
 
     [Space(10)]
 
@@ -40,24 +40,19 @@ public class PlayerRigidMovement : MonoBehaviour, IMove
     [Header("Caching")]
     private Rigidbody rb;
 
+    private bool _isJumpPressed;
+    protected bool isGrounded { get; private set;}
 
     #region Unity Callbacks
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        _player = GetComponent<Player>();
-        _playerAnim = _player.Anim;
 
         if (rb == null)
         {
             Debug.LogError("RigidBody not Found");
         }
-    }
-
-    private void Update()
-    {
-        Jump();
     }
 
     void FixedUpdate()
@@ -70,8 +65,6 @@ public class PlayerRigidMovement : MonoBehaviour, IMove
             }
             else
             {
-                float direction = Input.GetAxisRaw(Constants.HORIONTAL);
-
                 if (hardStop)
                 {
                     if (direction != 0)
@@ -91,55 +84,55 @@ public class PlayerRigidMovement : MonoBehaviour, IMove
         }
     }
 
+    private void Update()
+    {
+        Jump();
+    }
+
     #endregion
 
     #region Private API
     private void Jump()
     {
-        if (_player.isGrounded())
+        if (isGrounded)
         {
             _jumpCounter = 0;
         }
 
-        if (_jumpCounter < maxNumberOfJumps)
+        if(_isJumpPressed)
         {
-            if (Input.GetButtonDown(Constants.JUMP))
+            if (_jumpCounter < maxNumberOfJumps)
             {
-                rb.velocity = Vector3.up * JumpVelocity;
-            }
+                //if (input == Input.GetButtonDown(Constants.INPUT_JUMP))
+                //{
+                //    rb.velocity = Vector3.up * JumpVelocity;
+                //}
 
-            if (Input.GetButton(Constants.JUMP) && _fallingTimerDelay <= maxJumpTimePerJump)
-            {
-                rb.velocity = Vector3.up * JumpVelocity;
-                _fallingTimerDelay += Time.fixedDeltaTime;
-            }
-
-            if (Input.GetButtonUp(Constants.JUMP))
-            {
-
-                if(_fallingTimerDelay < maxJumpTimePerJump)
+                if (_isJumpPressed == Input.GetButton(Constants.INPUT_JUMP) && _fallingTimerDelay <= maxJumpTimePerJump)
                 {
-                    rb.velocity = Vector3.up * JumpVelocity * 0.1f;
+                    rb.velocity = Vector3.up * JumpVelocity;
+                    _fallingTimerDelay += Time.fixedDeltaTime;
                 }
 
-                _jumpCounter++;
+                if (_isJumpPressed == Input.GetButtonUp(Constants.INPUT_JUMP))
+                {
 
-                _fallingTimerDelay = 0;
+                    if (_fallingTimerDelay < maxJumpTimePerJump)
+                    {
+                        rb.velocity = Vector3.up * JumpVelocity * 0.1f;
+                    }
+
+                    _jumpCounter++;
+
+                    _fallingTimerDelay = 0;
+                }
             }
-        }       
-    }
-
-    private void ErrorChecking()
-    {
-        if (_playerAnim == null) Debug.LogError("Anim Not Assigned");
-        if (_player == null) Debug.LogError("Player Script not found");
+        }
     }
 
     private void MovePlayer( float direction )
     {
         float speed = direction * MovementSpeed * Time.deltaTime;
-
-        _playerAnim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
 
         if (isAcceleration)
         {
@@ -153,14 +146,24 @@ public class PlayerRigidMovement : MonoBehaviour, IMove
     #endregion
 
     #region Public API
-    public void SetVelocity( Vector3 VelocityVector )
+    public void SetJumpInput(bool pressed)
     {
-        //transform.position += VelocityVector;
+        _isJumpPressed = pressed;
+    }
+
+    public void SetIsGrounded( bool isGrounded)
+    {
+        this.isGrounded = isGrounded;
     }
 
     public void StopMovement()
     {
         canMove = false;
+    }
+
+    public void SetVelocity( float VelocityVector )
+    {
+        direction = VelocityVector;
     }
 
     #endregion

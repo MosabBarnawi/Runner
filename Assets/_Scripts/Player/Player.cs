@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
-public class Player : LivingEntity
+public class Player : LivingEntity, IControls
 {
     [Header("Debug Options")]
     public bool isDebugEnabled;
@@ -18,7 +18,7 @@ public class Player : LivingEntity
     [SerializeField]
     private LayerMask GroundLayerMask;
     [SerializeField]
-    private float GroundRaycastDistance = 0.5f;
+    private float GroundRaycastDistance = 0.11f;
 
     [Space(10)]
     [Header("Animator")]
@@ -27,8 +27,11 @@ public class Player : LivingEntity
     [Header("Caching")]
     private BoxCollider _boxCollider;
     private IMove imove;
+    private IAttack iattack;
 
     private bool hasTakenDamage = false;
+
+    private bool isGrounded;
 
     #region Unity Callbacks
     protected override void Start()
@@ -39,6 +42,7 @@ public class Player : LivingEntity
         OnTakeHit += TakeHit;
 
         imove = GetComponent<IMove>();
+        iattack = GetComponent<IAttack>();
 
         if (imove == null)
         {
@@ -52,47 +56,41 @@ public class Player : LivingEntity
 
     private void FixedUpdate()
     {
+        isGrounded = CheckIfGrounded();
+
         if (isDebugEnabled)
         {
             Debug.DrawRay(transform.position , transform.TransformDirection(Vector3.right * RaycastDistance) , Color.red);
         }
 
-        if (!isDead)
-        {
-            RaycastHit hit;
+        //if (!isDead)
+        //{
+        //    RaycastHit hit;
 
-            if (Physics.Raycast(transform.position , transform.TransformDirection(Vector3.right) , out hit , RaycastDistance , ObsticleLayerMask))
-            {
-                //if (!hasTakenDamage)
-                //{
-                //    TakeDamage(1f);
-                //    imove.StopMovement();
-                //    hasTakenDamage = true;
-                //}
-            }
-        }
+        //    if (Physics.Raycast(transform.position , transform.TransformDirection(Vector3.right) , out hit , RaycastDistance , ObsticleLayerMask))
+        //    {
+        //        //if (!hasTakenDamage)
+        //        //{
+        //        //    TakeDamage(1f);
+        //        //    imove.StopMovement();
+        //        //    hasTakenDamage = true;
+        //        //}
+        //    }
+        //}
     }
 
     private void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.K))
-        //{
-        //    TakeDamage(1f);
-        //}
+        MovementDirection();
+        JumpInput();
+        AttackInput();
     }
 
-    private void OnDrawGizmos()
-    {
-
-    }
     #endregion
 
     #region Private API
-    public bool isGrounded()
+    private bool CheckIfGrounded()
     {
-
-        //bool hitGround = Physics.Raycast(boxCollider.bounds.center , Vector3.down , boxCollider.bounds.extents.y + GroundRaycastDistance , GroundLayerMask);
-        //bool hitGround = Physics.BoxCast(boxCollider.bounds.center , boxCollider.bounds.size , Vector3.down , Quaternion.identity , GroundRaycastDistance , GroundLayerMask);
         //bool hitGround = Physics.BoxCast(boxCollider.bounds.center , new Vector3(0.5f , 0.5f , 0.5f) , Vector3.down , transform.rotation , GroundRaycastDistance , GroundLayerMask);
         bool hitGround = Physics.BoxCast(_boxCollider.bounds.center , _boxCollider.bounds.size.normalized , Vector3.down , transform.rotation , GroundRaycastDistance , GroundLayerMask);
         Color rayColor = Color.green;
@@ -101,10 +99,6 @@ public class Player : LivingEntity
         {
             rayColor = Color.red;
         }
-
-        //Debug.DrawRay(boxCollider.bounds.center + new Vector3(0.5f , 0) , Vector3.down * ( 0.5f + GroundRaycastDistance ) , rayColor);
-        //Debug.DrawRay(boxCollider.bounds.center - new Vector3(0.5f , 0) , Vector3.down * ( 0.5f + GroundRaycastDistance ) , rayColor);
-        //Debug.DrawRay(boxCollider.bounds.center - new Vector3(0.5f , 0.5f) , Vector3.right * ( 0.5f ) , rayColor);
 
         Debug.DrawRay(_boxCollider.bounds.center + new Vector3(_boxCollider.bounds.extents.x , 0) , Vector3.down * ( _boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
         Debug.DrawRay(_boxCollider.bounds.center - new Vector3(_boxCollider.bounds.extents.x , 0) , Vector3.down * ( _boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
@@ -117,7 +111,6 @@ public class Player : LivingEntity
     {
         Debug.Log("Died");
         imove.StopMovement();
-        // DISABLE MOVEMENT
     }
 
     private void AddHealthFX()
@@ -128,5 +121,41 @@ public class Player : LivingEntity
     {
 
     }
+    #endregion
+
+    public void MovementDirection()
+    {
+        float direction = Input.GetAxisRaw(Constants.INPUT_HORIONTAL);
+
+        Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
+        imove.SetVelocity(direction);
+    }
+
+    #region Public API
+
+    public void JumpInput()
+    {
+        imove.SetIsGrounded(isGrounded);
+
+        //bool ButtonDown = Input.GetButtonDown(Constants.INPUT_JUMP);
+        bool ButtonHold = Input.GetButton(Constants.INPUT_JUMP);
+        bool ButtonUp = Input.GetButtonUp(Constants.INPUT_JUMP);
+
+        //if (ButtonDown)
+        //    imove.SetJumpInput(ButtonDown);
+        if (ButtonHold)
+            imove.SetJumpInput(ButtonHold);
+        if (ButtonUp)
+            imove.SetJumpInput(ButtonUp);
+    }
+
+    public void AttackInput()
+    {
+        if (Input.GetButtonDown(Constants.INPUT_ATTACK))
+        {
+            iattack.Attack();
+        }
+    }
+
     #endregion
 }

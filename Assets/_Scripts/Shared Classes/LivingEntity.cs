@@ -12,8 +12,10 @@ public class LivingEntity : MonoBehaviour, IDamagable
     [Header("Health")]
     public float StartingHealth;
     //protected float _maxHealth;
-    protected float _health;
-    protected bool dead;
+    //protected float _health;
+    //protected bool dead;
+    private float _health;
+    private bool dead;
 
     public bool isDead 
     {
@@ -75,6 +77,5 @@ public class LivingEntity : MonoBehaviour, IDamagable
         }
         else Debug.LogAssertion("No OnDeath Function");
     }
-
     #endregion
 }
