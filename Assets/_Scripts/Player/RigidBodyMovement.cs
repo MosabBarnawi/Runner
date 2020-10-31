@@ -111,7 +111,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
                 if (_isJumpPressed == Input.GetButton(Constants.INPUT_JUMP) && _fallingTimerDelay <= maxJumpTimePerJump)
                 {
                     rb.velocity = Vector3.up * JumpVelocity;
-                    _fallingTimerDelay += Time.fixedDeltaTime;
+                    _fallingTimerDelay += Time.deltaTime;
                 }
 
                 if (_isJumpPressed == Input.GetButtonUp(Constants.INPUT_JUMP))
@@ -132,7 +132,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
 
     private void MovePlayer( float direction )
     {
-        float speed = direction * MovementSpeed * Time.deltaTime;
+        float speed = direction * MovementSpeed * Time.fixedDeltaTime;
 
         if (isAcceleration)
         {

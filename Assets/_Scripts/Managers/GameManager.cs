@@ -4,15 +4,21 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int TEXT_VALUE;
+    public static GameManager SharedInstance;
 
-    // Update is called once per frame
-    void Update()
+    #region Unity Callbacks
+    void Awake()
     {
-        
+        if (SharedInstance == null)
+        {
+            DontDestroyOnLoad(this);
+            SharedInstance = this;
+        }
+        else if (SharedInstance != this)
+        {
+            Destroy(this);
+        }
     }
+    #endregion
 }

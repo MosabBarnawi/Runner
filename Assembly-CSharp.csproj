@@ -75,6 +75,8 @@
     <Compile Include="Assets\_Scripts\Interfaces\IControls.cs" />
     <Compile Include="Assets\_Scripts\Interfaces\IDamagable.cs" />
     <Compile Include="Assets\_Scripts\Interfaces\IMove.cs" />
+    <Compile Include="Assets\_Scripts\Json\JsonSaveAndLoadScript.cs" />
+    <Compile Include="Assets\_Scripts\Json\StoredData.cs" />
     <Compile Include="Assets\_Scripts\Managers\GameManager.cs" />
     <Compile Include="Assets\_Scripts\Player\AttackControls.cs" />
     <Compile Include="Assets\_Scripts\Player\Player.cs" />
