@@ -20,8 +20,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
     [SerializeField]
     private float MovementSpeed = 10f;
 
-    public float direction;
-
+    private float direction;
     private bool canMove = true;
 
     [Space(10)]
@@ -110,7 +109,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
 
                 if (_isJumpPressed == Input.GetButton(Constants.INPUT_JUMP) && _fallingTimerDelay <= maxJumpTimePerJump)
                 {
-                    rb.velocity = Vector3.up * JumpVelocity;
+                    rb.velocity = Vector3.up * JumpVelocity / 2;
                     _fallingTimerDelay += Time.deltaTime;
                 }
 

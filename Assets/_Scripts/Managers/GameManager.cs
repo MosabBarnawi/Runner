@@ -1,11 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.UI;
 using UnityEngine;
+using System;
 
 public class GameManager : MonoBehaviour
 {
-    public int TEXT_VALUE;
     public static GameManager SharedInstance;
+    public int TEXT_VALUE;
+
+    [Header("Top UI")]
+    public GameObject TopUI;
+    public Button PasueButton;
+    public Text XText;
+
+    [Header("Pause Menu")]
+    public GameObject PauseMenu;
 
     #region Unity Callbacks
     void Awake()
@@ -20,5 +30,48 @@ public class GameManager : MonoBehaviour
             Destroy(this);
         }
     }
+
+    private void OnEnable()
+    {
+        if (PasueButton != null) PasueButton.onClick.AddListener(TogglePauseMenu);
+    }
+
+    private void Start()
+    {
+        Init();
+    }
+
+    private void OnDisable()
+    {
+        if (PasueButton != null) PasueButton.onClick.RemoveAllListeners();
+    }
+    #endregion
+
+    #region Private API
+
+    private void Init()
+    {
+        if (PauseMenu != null) PauseMenu.SetActive(false);
+        else Debug.LogError("Pause Menu Canvas Not Assigned");
+
+        if (TopUI == null) Debug.LogError("Top UI Has not Been Assigned");
+        if (PasueButton == null) Debug.LogError("Pause Button Not Assigned");
+    }
+
+    private void TogglePauseMenu()
+    {
+        bool toggleStatus = PauseMenu.activeSelf;
+        PauseMenu.SetActive(!toggleStatus);
+
+        if(toggleStatus)
+        {
+            XText.text = "II";
+        }
+        else
+        {
+            XText.text = "X";
+        }
+    }
+
     #endregion
 }
