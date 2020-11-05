@@ -65,11 +65,15 @@ public class GameManager : MonoBehaviour
 
         if(toggleStatus)
         {
+            // RESUME GAME
             XText.text = "II";
+            Time.timeScale = Constants.NORMAL_TIME;
         }
         else
         {
+            // PAUSE GAME
             XText.text = "X";
+            Time.timeScale = Constants.PAUSE_TIME;
         }
     }
 

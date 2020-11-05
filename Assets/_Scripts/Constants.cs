@@ -18,4 +18,8 @@ public class Constants
     public const string ANIM_JUMP = "Jump";
     public const string ANIM_JUMP_COUNTER = "JumpCounter";
     public const string ANIM_HARD_LAND = "HardLand";
+
+    // TIME
+    public const int PAUSE_TIME = 0;
+    public const int NORMAL_TIME = 1;
 }
