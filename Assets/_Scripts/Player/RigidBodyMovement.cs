@@ -16,7 +16,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
         isAcceleration = false;
 
     [SerializeField]
-    private float JumpVelocity = 8f;
+    private float JumpVelocity = 30f;
     [SerializeField]
     private float MovementSpeed = 10f;
 
@@ -28,10 +28,17 @@ public class RigidBodyMovement : MonoBehaviour, IMove
     [Header("Jump Controls")]
     [SerializeField]
     private int maxNumberOfJumps = 2;
+    //[SerializeField]
+    //private float maxJumpHeigh = 5f;
     [SerializeField]
     private float maxJumpTimePerJump = 0.4f;
+
     [SerializeField]
+    [Tooltip("When the Jump Button Is Held it Applies This Gravity Value")]
     private float gravityScale = 0.4f;
+    [SerializeField]
+    private float defultGravityScale = 0.8f;
+    private float _gravity;
 
     private float _fallingTimerDelay;
     private int _jumpCounter;
@@ -54,6 +61,8 @@ public class RigidBodyMovement : MonoBehaviour, IMove
         {
             Debug.LogError("RigidBody not Found");
         }
+
+        _gravity = defultGravityScale;
     }
 
     void FixedUpdate()
@@ -62,7 +71,6 @@ public class RigidBodyMovement : MonoBehaviour, IMove
         {
             if (isConstantMovement)
             {
-                //_player.Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , MovementDirection);
                 MovePlayer(MovementDirection);
             }
             else
@@ -115,16 +123,23 @@ public class RigidBodyMovement : MonoBehaviour, IMove
                     _player.Anim.SetBool(Constants.ANIM_JUMP , true);
                     _player.Anim.SetBool(Constants.ANIM_HARD_LAND , false);
 
+                    _gravity = gravityScale;
+
+                    //if(transform.position.y < maxJumpHeigh)
                     rb.velocity = Vector3.up * JumpVelocity / 2;
+
+
                     _fallingTimerDelay += Time.deltaTime;
                 }
+                else _gravity = defultGravityScale;
+
 
                 if (_isJumpPressed == Input.GetButtonUp(Constants.INPUT_JUMP))
                 {
 
                     if (_fallingTimerDelay < maxJumpTimePerJump)
                     {
-                        rb.velocity = Vector3.up * JumpVelocity * 0.1f;
+                        //rb.velocity = Vector3.up * JumpVelocity * 0.1f;
 
                         if (rb.velocity.y <= 5) _player.Anim.SetBool(Constants.ANIM_HARD_LAND , true);
                         else _player.Anim.SetBool(Constants.ANIM_HARD_LAND , false);
@@ -148,11 +163,11 @@ public class RigidBodyMovement : MonoBehaviour, IMove
 
         if (isAcceleration)
         {
-            rb.velocity += new Vector3(speed , rb.velocity.y - gravityScale , 0);
+            rb.velocity += new Vector3(speed , rb.velocity.y - _gravity , 0);
         }
         else
         {
-            rb.velocity = new Vector3(speed * 100 , rb.velocity.y - gravityScale , 0);
+            rb.velocity = new Vector3(speed * 100 , rb.velocity.y - _gravity , 0);
         }
     }
     #endregion
