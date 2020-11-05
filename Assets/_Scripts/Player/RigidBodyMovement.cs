@@ -38,15 +38,17 @@ public class RigidBodyMovement : MonoBehaviour, IMove
 
     [Header("Caching")]
     private Rigidbody rb;
+    private Player _player;
 
     private bool _isJumpPressed;
-    protected bool isGrounded { get; private set;}
+    protected bool isGrounded { get; private set; }
 
     #region Unity Callbacks
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        _player = GetComponent<Player>();
 
         if (rb == null)
         {
@@ -60,6 +62,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
         {
             if (isConstantMovement)
             {
+                //_player.Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , MovementDirection);
                 MovePlayer(MovementDirection);
             }
             else
@@ -98,7 +101,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
             _jumpCounter = 0;
         }
 
-        if(_isJumpPressed)
+        if (_isJumpPressed)
         {
             if (_jumpCounter < maxNumberOfJumps)
             {
@@ -109,6 +112,9 @@ public class RigidBodyMovement : MonoBehaviour, IMove
 
                 if (_isJumpPressed == Input.GetButton(Constants.INPUT_JUMP) && _fallingTimerDelay <= maxJumpTimePerJump)
                 {
+                    _player.Anim.SetBool(Constants.ANIM_JUMP , true);
+                    _player.Anim.SetBool(Constants.ANIM_HARD_LAND , false);
+
                     rb.velocity = Vector3.up * JumpVelocity / 2;
                     _fallingTimerDelay += Time.deltaTime;
                 }
@@ -119,7 +125,12 @@ public class RigidBodyMovement : MonoBehaviour, IMove
                     if (_fallingTimerDelay < maxJumpTimePerJump)
                     {
                         rb.velocity = Vector3.up * JumpVelocity * 0.1f;
+
+                        if (rb.velocity.y <= 5) _player.Anim.SetBool(Constants.ANIM_HARD_LAND , true);
+                        else _player.Anim.SetBool(Constants.ANIM_HARD_LAND , false);
                     }
+
+                    _player.Anim.SetBool(Constants.ANIM_JUMP , false);
 
                     _jumpCounter++;
 
@@ -131,6 +142,8 @@ public class RigidBodyMovement : MonoBehaviour, IMove
 
     private void MovePlayer( float direction )
     {
+        _player.Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
+
         float speed = direction * MovementSpeed * Time.fixedDeltaTime;
 
         if (isAcceleration)
@@ -145,12 +158,12 @@ public class RigidBodyMovement : MonoBehaviour, IMove
     #endregion
 
     #region Public API
-    public void SetJumpInput(bool pressed)
+    public void SetJumpInput( bool pressed )
     {
         _isJumpPressed = pressed;
     }
 
-    public void SetIsGrounded( bool isGrounded)
+    public void SetIsGrounded( bool isGrounded )
     {
         this.isGrounded = isGrounded;
     }
@@ -162,7 +175,8 @@ public class RigidBodyMovement : MonoBehaviour, IMove
 
     public void SetVelocity( float VelocityVector )
     {
-        direction = VelocityVector;
+        if (!isConstantMovement)
+            direction = VelocityVector;
     }
 
     #endregion

@@ -126,8 +126,6 @@ public class Player : LivingEntity, IControls
     public void MovementDirection()
     {
         float direction = Input.GetAxisRaw(Constants.INPUT_HORIONTAL);
-
-        Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
         imove.SetVelocity(direction);
     }
 
@@ -137,16 +135,20 @@ public class Player : LivingEntity, IControls
     {
         imove.SetIsGrounded(isGrounded);
 
+        Anim.SetBool(Constants.ANIM_IS_GROUNDED , isGrounded);
+
+        if (isGrounded) Anim.SetBool(Constants.ANIM_JUMP , false);
+
         //bool ButtonDown = Input.GetButtonDown(Constants.INPUT_JUMP);
         bool ButtonHold = Input.GetButton(Constants.INPUT_JUMP);
         bool ButtonUp = Input.GetButtonUp(Constants.INPUT_JUMP);
 
+
         //if (ButtonDown)
         //    imove.SetJumpInput(ButtonDown);
-        if (ButtonHold)
-            imove.SetJumpInput(ButtonHold);
-        if (ButtonUp)
-            imove.SetJumpInput(ButtonUp);
+        if (ButtonHold) imove.SetJumpInput(ButtonHold);
+        if (ButtonUp) imove.SetJumpInput(ButtonUp);
+
     }
 
     public void AttackInput()

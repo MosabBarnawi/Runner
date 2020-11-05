@@ -15,4 +15,7 @@ public class Constants
     /// ANIMATION ///
     public const string ANIM_MOVEMENT_SPEED = "MovementSpeed";
     public const string ANIM_IS_GROUNDED = "isGrounded";
+    public const string ANIM_JUMP = "Jump";
+    public const string ANIM_JUMP_COUNTER = "JumpCounter";
+    public const string ANIM_HARD_LAND = "HardLand";
 }
