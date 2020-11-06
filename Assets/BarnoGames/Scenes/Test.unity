@@ -544,11 +544,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 403853365}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1890a9a592e8e66469fde28b451fb618, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Save: 0
 --- !u!4 &609275821 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4555676425407203118, guid: 02cde3afef02ade4b90f8cbae2728481, type: 3}

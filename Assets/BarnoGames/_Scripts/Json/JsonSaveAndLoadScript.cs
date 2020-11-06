@@ -12,8 +12,11 @@ public class JsonSaveAndLoadScript : MonoBehaviour
     private const string FILENAME = "UserDataRunner.json";
     private StoredData prefs;
 
-    private const bool IS_ENCRYPTED = false;
-    private const string ENCRYPT_HASH = "Q!M+89/>d$p";
+    private bool IS_ENCRYPTED = false;
+    private string ENCRYPT_HASH = "Q!M+89/>d$p";
+
+    [SerializeField]
+    private bool Save = true;
 
     private string _path;
     private string _jsonString;
@@ -48,6 +51,8 @@ public class JsonSaveAndLoadScript : MonoBehaviour
     private void Start()
     {
         LoadFromDisk();
+
+        if (!Save) Debug.LogWarning("Saving Function is Disabled");
     }
 
     private void OnApplicationPause( bool pause )
@@ -71,64 +76,70 @@ public class JsonSaveAndLoadScript : MonoBehaviour
 
     private void LoadFromDisk()
     {
-        #region IF SAVE FILE DOSE NOT EXIST
-        if (!DoesSaveFileExist)
+        if (Save)
         {
-            LoadIfFileDoesNotExist();
-        }
-        #endregion
-
-        #region IF SAVE FILE EXISTS
-
-        if (DoesSaveFileExist)
-        {
-            try
+            #region IF SAVE FILE DOSE NOT EXIST
+            if (!DoesSaveFileExist)
             {
-                _jsonString = File.ReadAllText(_path);
-                if (IS_ENCRYPTED)
-                {
-                    string DecryptedText = Decrypt(_jsonString);
-                    prefs = JsonUtility.FromJson<StoredData>(DecryptedText);
-                }
-                else
-                {
-                    prefs = JsonUtility.FromJson<StoredData>(_jsonString);
-                }
-            }
-
-            catch (Exception e)
-            {
-                DeleteData();
                 LoadIfFileDoesNotExist();
-                Debug.LogErrorFormat("Failed parsing save file. Resetting. Error: {0}" , e);
             }
+            #endregion
+
+            #region IF SAVE FILE EXISTS
+
+            if (DoesSaveFileExist)
+            {
+                try
+                {
+                    _jsonString = File.ReadAllText(_path);
+                    if (IS_ENCRYPTED)
+                    {
+                        string DecryptedText = Decrypt(_jsonString);
+                        prefs = JsonUtility.FromJson<StoredData>(DecryptedText);
+                    }
+                    else
+                    {
+                        prefs = JsonUtility.FromJson<StoredData>(_jsonString);
+                    }
+                }
+
+                catch (Exception e)
+                {
+                    DeleteData();
+                    LoadIfFileDoesNotExist();
+                    Debug.LogErrorFormat("Failed parsing save file. Resetting. Error: {0}" , e);
+                }
+            }
+
+            getData();
+
+            #endregion
+
+            HasLoaded = true;
+            Debug.Log("Loaded ---> Save File");
         }
-
-        getData();
-
-        #endregion
-
-        HasLoaded = true;
-        Debug.Log("Loaded ---> Save File");
     }
 
     private void SaveToDisk()
     {
-        setData();
-
-        if (IS_ENCRYPTED)
+        if (Save)
         {
-            _jsonString = JsonUtility.ToJson(prefs);
-            string EncryptedJson = Encrypt(_jsonString);
-            File.WriteAllText(_path , EncryptedJson);
-        }
-        else
-        {
-            _jsonString = JsonUtility.ToJson(prefs);
-            File.WriteAllText(_path , _jsonString);
-        }
+            setData();
 
-        Debug.LogFormat("Saved ---> {0}" , _path);
+            if (IS_ENCRYPTED)
+            {
+                _jsonString = JsonUtility.ToJson(prefs);
+                string EncryptedJson = Encrypt(_jsonString);
+                File.WriteAllText(_path , EncryptedJson);
+            }
+            else
+            {
+                _jsonString = JsonUtility.ToJson(prefs);
+                File.WriteAllText(_path , _jsonString);
+            }
+
+            Debug.LogFormat("Saved ---> {0}" , _path);
+        }
     }
 
     private void DeleteData()
@@ -177,7 +188,7 @@ public class JsonSaveAndLoadScript : MonoBehaviour
         Debug.Log("Cretaed Save File");
     }
 
-    private static string Encrypt( string input )
+    private string Encrypt( string input )
     {
         byte [] data = Encoding.UTF8.GetBytes(input);
         using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
@@ -192,7 +203,7 @@ public class JsonSaveAndLoadScript : MonoBehaviour
         }
     }
 
-    private static string Decrypt( string input )
+    private string Decrypt( string input )
     {
         byte [] data = Convert.FromBase64String(input);
         using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
