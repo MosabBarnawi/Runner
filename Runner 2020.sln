@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{9C012E88-F38D-7087-E262-4957876D0915}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadicalForge.Blockout", "RadicalForge.Blockout.csproj", "{7C07C013-4DAB-EB41-4754-C5CBDA6FFF14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadicalForge.Blockout.Editor", "RadicalForge.Blockout.Editor.csproj", "{6573D18D-2FFB-F2B5-4071-333154999543}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,14 @@ Global
 		{9C012E88-F38D-7087-E262-4957876D0915}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C012E88-F38D-7087-E262-4957876D0915}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C012E88-F38D-7087-E262-4957876D0915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C07C013-4DAB-EB41-4754-C5CBDA6FFF14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C07C013-4DAB-EB41-4754-C5CBDA6FFF14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C07C013-4DAB-EB41-4754-C5CBDA6FFF14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C07C013-4DAB-EB41-4754-C5CBDA6FFF14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6573D18D-2FFB-F2B5-4071-333154999543}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6573D18D-2FFB-F2B5-4071-333154999543}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6573D18D-2FFB-F2B5-4071-333154999543}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6573D18D-2FFB-F2B5-4071-333154999543}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
