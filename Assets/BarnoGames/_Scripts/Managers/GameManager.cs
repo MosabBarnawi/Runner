@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BarnoGames.Utilities.DeveloperConsole.Behavior;
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
@@ -16,6 +17,9 @@ public class GameManager : MonoBehaviour
 
     [Header("Pause Menu")]
     public GameObject PauseMenu;
+
+    [Header("Console")]
+    [SerializeField] private DeveloperConsoleBehavior developerConsoleBehavior;
 
     #region Unity Callbacks
     void Awake()
@@ -45,9 +49,17 @@ public class GameManager : MonoBehaviour
     {
         if (PasueButton != null) PasueButton.onClick.RemoveAllListeners();
     }
-    #endregion
 
-    #region Private API
+    private void Update()
+    {
+#if UNITY_EDITOR
+        ToggleConsoleScreen();
+#endif
+    }
+
+#endregion
+
+#region Private API
 
     private void Init()
     {
@@ -56,6 +68,17 @@ public class GameManager : MonoBehaviour
 
         if (TopUI == null) Debug.LogError("Top UI Has not Been Assigned");
         if (PasueButton == null) Debug.LogError("Pause Button Not Assigned");
+    }
+
+    private void ToggleConsoleScreen()
+    {
+        if (developerConsoleBehavior != null)
+        {
+            if (Input.GetKeyDown(KeyCode.BackQuote))
+            {
+                developerConsoleBehavior.ToggleOptionsMenu();
+            }
+        }
     }
 
     private void TogglePauseMenu()
@@ -77,5 +100,5 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    #endregion
+#endregion
 }
