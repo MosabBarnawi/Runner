@@ -141,13 +141,11 @@ public class Player : LivingEntity, IControls
 
         //bool ButtonDown = Input.GetButtonDown(Constants.INPUT_JUMP);
         bool ButtonHold = Input.GetButton(Constants.INPUT_JUMP);
-        bool ButtonUp = Input.GetButtonUp(Constants.INPUT_JUMP);
+        //bool ButtonUp = Input.GetButtonUp(Constants.INPUT_JUMP);
 
-
-        //if (ButtonDown)
-        //    imove.SetJumpInput(ButtonDown);
+        //if (ButtonDown) imove.SetJumpInput(ButtonDown);
         if (ButtonHold) imove.SetJumpInput(ButtonHold);
-        if (ButtonUp) imove.SetJumpInput(ButtonUp);
+        //if (ButtonUp) imove.SetJumpInput(ButtonUp);
 
     }
 
@@ -157,6 +155,7 @@ public class Player : LivingEntity, IControls
         {
             iattack.Attack();
         }
+
     }
 
     #endregion

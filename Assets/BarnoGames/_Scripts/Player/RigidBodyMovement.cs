@@ -119,6 +119,7 @@ public class RigidBodyMovement : MonoBehaviour, IMove
                 //}
 
                 if (_isJumpPressed == Input.GetButton(Constants.INPUT_JUMP) && _fallingTimerDelay <= maxJumpTimePerJump)
+
                 {
                     _player.Anim.SetBool(Constants.ANIM_JUMP , true);
                     _player.Anim.SetBool(Constants.ANIM_HARD_LAND , false);
@@ -133,10 +134,8 @@ public class RigidBodyMovement : MonoBehaviour, IMove
                 }
                 else _gravity = defultGravityScale;
 
-
                 if (_isJumpPressed == Input.GetButtonUp(Constants.INPUT_JUMP))
                 {
-
                     if (_fallingTimerDelay < maxJumpTimePerJump)
                     {
                         //rb.velocity = Vector3.up * JumpVelocity * 0.1f;
