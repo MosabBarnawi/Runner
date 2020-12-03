@@ -1,9 +1,10 @@
-﻿using UnityEngine;
-
-public interface IMove
+﻿
+namespace BarnoGames.Runner2020
 {
-    void SetVelocity( float VelocityVector );
-    void StopMovement();
-    void SetJumpInput( bool pressed);
-    void SetIsGrounded(bool grounded);
+    internal interface IMove
+    {
+        void SetVelocity(float VelocityVector);
+        void StopMovement(bool freezeInSpace);
+        void EnableMovement();
+    }
 }

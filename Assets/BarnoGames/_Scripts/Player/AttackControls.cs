@@ -1,26 +1,34 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackControls : MonoBehaviour, IAttack
+
+public class AttackControls : MonoBehaviour/*, IAttack*/
 {
-    #region Unity CallBacks
-    void Start()
-    {
 
-    }
+    private Transform transformToGoTo;
+    private Action callback;
 
-    void Update()
-    {
-
-    }
-
-    #endregion
-
-    #region
     public void Attack()
     {
         Debug.Log("Attacked");
+        FlyToPosition();
     }
-    #endregion
+
+    public void GoToPosition(Transform _transform, Action callback)
+    {
+        transformToGoTo = _transform;
+        this.callback = callback;
+    }
+    
+    private void FlyToPosition()
+    {
+        if (transformToGoTo != null)
+        {
+            transform.position = transformToGoTo.position;
+            transformToGoTo = null;
+            callback();
+        }
+    }
 }

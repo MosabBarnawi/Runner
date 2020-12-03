@@ -1,116 +1,332 @@
-﻿using System.Collections.Generic;
-using System.Collections;
+﻿using BarnoGames.Runner2020;
 using UnityEngine;
+using TMPro;
+using System;
 
-public class Player : LivingEntity, IControls
+public enum PlayerType { MainPlayer, Secondary }
+[SelectionBase]
+public class Player : Character, IEnablePlayerControlHandler
 {
-    [Header("Debug Options")]
-    public bool isDebugEnabled;
-
-    [Space(10)]
     [Header("Ray Casting")]
-    [SerializeField]
-    private LayerMask ObsticleLayerMask;
-    [SerializeField]
-    private float RaycastDistance = 1.5f;
+    [SerializeField] private LayerMask WalkableLayerMask;
+    [SerializeField] private LayerMask ForwardDetectionLayerMask;
+    [SerializeField] private float GroundRaycastDistance = 0.11f;
 
     [Space(5)]
-    [SerializeField]
-    private LayerMask GroundLayerMask;
-    [SerializeField]
-    private float GroundRaycastDistance = 0.11f;
+    [SerializeField] private float RaycastDistanceForward = 1.5f;
+    [SerializeField] private Vector3 adjustWhenStuckOnWall = new Vector3(1, 2, 0);
 
-    [Space(10)]
-    [Header("Animator")]
-    public Animator Anim;
+    [SerializeField] private float speedToTransitionIntoSlopAngle = 0.2f;
 
-    [Header("Caching")]
-    private BoxCollider _boxCollider;
     private IMove imove;
-    private IAttack iattack;
 
-    private bool hasTakenDamage = false;
+    [Header("Switch Player")]
+    [SerializeField] private PlayerType playerType;
+    [SerializeField] private GameObject MainPlayer;
+    [SerializeField] private GameObject SecondaryPlayer; //TODO:: ADD FAKE ROLLING
 
-    private bool isGrounded;
+    private Rigidbody _mainPlayerRB;
+    private Rigidbody _secondaryRB;
+
+    private CapsuleCollider capsuleCollider;
+    private SphereCollider sphereCollider;
+    private Collider currentCollider;
+
+    [Header("Debugging")]
+    [SerializeField] private TextMeshProUGUI DebugText;
+    [SerializeField] private bool DebugDraw = false;
 
     #region Unity Callbacks
+
+    protected override void Awake()
+    {
+        //Application.targetFrameRate = -1;
+
+        base.Awake();
+        IAmPlayer = true;
+
+        InitilizeControls();
+
+        if (MainPlayer == null)
+            Debug.LogError("Main Player Not Assigned");
+        if (SecondaryPlayer == null)
+            Debug.LogError("Secondary Player Not Assigned");
+
+        capsuleCollider = MainPlayer.GetComponent<CapsuleCollider>();
+        sphereCollider = SecondaryPlayer.GetComponent<SphereCollider>();
+
+        _mainPlayerRB = MainPlayer.GetComponent<Rigidbody>();
+        _secondaryRB = SecondaryPlayer.GetComponent<Rigidbody>();
+
+
+        if (Anim == null) Debug.LogError($"Animator Not Assigned {gameObject.name}");
+
+        imove = GetComponent<IMove>();
+
+        rb = _mainPlayerRB;
+        currentCollider = capsuleCollider;
+    }
+
+    private void OnEnable()
+    {
+        if (IAmPlayer) PlayerInputControls.SpecialAbility = SwitchPlayers;
+    }
+
     protected override void Start()
     {
-        base.Start(); // Calls start from LivingEnitiy
+        base.Start();
+
         OnDeath += PlayerDeath;
         OnAddHealth += AddHealthFX;
         OnTakeHit += TakeHit;
 
-        imove = GetComponent<IMove>();
-        iattack = GetComponent<IAttack>();
-
-        if (imove == null)
+        if (IAmPlayer && PlayerInputControls.SpecialAbility == null)
         {
-            Debug.LogError("IMove Not Found");
+            PlayerInputControls.SpecialAbility = SwitchPlayers;
+            Debug.LogWarning($"***Not Assigned . Trying to Find {PlayerInputControls.SpecialAbility.Method}");
         }
-
-        if (Anim == null) Debug.LogError("Player Animator Not Assigned");
-
-        _boxCollider = GetComponent<BoxCollider>();
     }
+
+    private void Update() => isGroundedAnimation(); // MOVE TO FIXED UPDATED ?
 
     private void FixedUpdate()
     {
-        isGrounded = CheckIfGrounded();
+        //TODO CAHNGE INTORPOLATION TYPE TO REMOVE JITTER
+        //if (Application.targetFrameRate <= 20) rb.interpolation = RigidbodyInterpolation.None;
 
-        if (isDebugEnabled)
-        {
-            Debug.DrawRay(transform.position , transform.TransformDirection(Vector3.right * RaycastDistance) , Color.red);
-        }
-
-        //if (!isDead)
-        //{
-        //    RaycastHit hit;
-
-        //    if (Physics.Raycast(transform.position , transform.TransformDirection(Vector3.right) , out hit , RaycastDistance , ObsticleLayerMask))
-        //    {
-        //        //if (!hasTakenDamage)
-        //        //{
-        //        //    TakeDamage(1f);
-        //        //    imove.StopMovement();
-        //        //    hasTakenDamage = true;
-        //        //}
-        //    }
-        //}
+        CheckForwardRayCast();
+        IsGrounded = CheckIfGrounded();
+        //isGroundedAnimation();
     }
 
-    private void Update()
+
+    private void OnDisable()
     {
-        MovementDirection();
-        JumpInput();
-        AttackInput();
+        if (IAmPlayer)
+            PlayerInputControls.SpecialAbility -= SwitchPlayers;
     }
 
+    private void OnDestroy()
+    {
+        if (IAmPlayer)
+            PlayerInputControls.SpecialAbility -= SwitchPlayers;
+    }
     #endregion
+    public void EnableControls(bool enabled) => CanControl = enabled;
+
+    public void ReSpawnToPosition(Vector3 position)
+    {
+        // SwitchBack to MainPlayer
+        if (playerType == PlayerType.Secondary) SwitchPlayers();
+        //imove.StopMovement();
+        //imove.FreezePositionInSpace();
+
+        // TODO :: DISABLE KENEMATIC
+        Debug.Log(position);
+        rb.transform.position = position;
+
+        Anim.SetBool("EndLevel", false);
+        imove.EnableMovement();
+    }
+
+    public void PlayerInWinState()
+    {
+        if (playerType != PlayerType.MainPlayer) SwitchPlayers();
+        //TODO:: HANDLE IF SHARD HAS BEEN THROWN TO BRING IT BACKBEFORE STARTING NEXT LEVEL
+        Anim.SetBool("EndLevel", true);
+        imove.StopMovement(true);
+    }
 
     #region Private API
-    private bool CheckIfGrounded()
-    {
-        //bool hitGround = Physics.BoxCast(boxCollider.bounds.center , new Vector3(0.5f , 0.5f , 0.5f) , Vector3.down , transform.rotation , GroundRaycastDistance , GroundLayerMask);
-        bool hitGround = Physics.BoxCast(_boxCollider.bounds.center , _boxCollider.bounds.size.normalized , Vector3.down , transform.rotation , GroundRaycastDistance , GroundLayerMask);
-        Color rayColor = Color.green;
 
-        if (hitGround)
+    private void InitilizeControls()
+    {
+        if (PlayerInputControls.Player == null)
+            PlayerInputControls.Player = this;
+        else
         {
-            rayColor = Color.red;
+            if (PlayerInputControls.Player != this)
+                Destroy(gameObject);
+        }
+    }
+
+    #region RAY CASTINGS AND SLOPE DETECTION LOGIC
+    private void CheckForwardRayCast()
+    {
+        bool HitWall = Physics.Raycast(rb.position, rb.transform.TransformDirection(Vector3.right)/*, out RaycastHit hit*/, RaycastDistanceForward, ForwardDetectionLayerMask);
+
+        Debug.DrawRay(rb.position, new Vector3(RaycastDistanceForward, 0, 0), Color.red);
+
+        if (HitWall && !IsGroundSmash)
+        {
+            Debug.LogWarning("Wall");
+            Tool_DebugText("Wall", Color.red);
+            // TODO ADJUST PLAYER
+            transform.position += adjustWhenStuckOnWall;
         }
 
-        Debug.DrawRay(_boxCollider.bounds.center + new Vector3(_boxCollider.bounds.extents.x , 0) , Vector3.down * ( _boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
-        Debug.DrawRay(_boxCollider.bounds.center - new Vector3(_boxCollider.bounds.extents.x , 0) , Vector3.down * ( _boxCollider.bounds.extents.y + GroundRaycastDistance ) , rayColor);
-        Debug.DrawRay(_boxCollider.bounds.center - new Vector3(_boxCollider.bounds.extents.x , _boxCollider.bounds.extents.y) , Vector3.right * ( _boxCollider.bounds.extents.x ) , rayColor);
+        else Tool_DebugText("", Color.green);
+    }
+
+    protected override bool CheckIfGrounded()
+    {
+        bool hitGround = false;
+
+        bool forwardGrounded = Physics.Raycast(currentCollider.bounds.center + new Vector3(currentCollider.bounds.extents.x, 0), Vector3.down, out RaycastHit hitForward, GroundRaycastDistance, WalkableLayerMask);
+        bool middleGrounded = Physics.Raycast(currentCollider.bounds.center, Vector3.down, out RaycastHit hitMiddle, GroundRaycastDistance, WalkableLayerMask);
+        bool backwardGrounded = Physics.Raycast(currentCollider.bounds.center - new Vector3(currentCollider.bounds.extents.x, 0), Vector3.down, out RaycastHit hitBackward, GroundRaycastDistance, WalkableLayerMask);
+
+
+        Transform forwardPositon = hitForward.transform;
+        Transform middlePositon = hitMiddle.transform;
+        Transform backwardPositon = hitBackward.transform;
+
+        if ((IsGroundSmash && forwardPositon != null) || (IsGroundSmash && middlePositon != null) || (IsGroundSmash && backwardPositon != null))
+        {
+            if (forwardPositon.CompareTag(TAGS.TAG_BREAKABLE) || backwardPositon.CompareTag(TAGS.TAG_BREAKABLE) || middlePositon.CompareTag(TAGS.TAG_BREAKABLE))
+            {
+                // DO STUFF
+                forwardPositon.GetComponent<Destroyable>()?.Smached();
+                Debug.Log("Hit Breakable Floor");
+                hitGround = false;
+            }
+            else
+            {
+                // go back to normal
+                imove.EnableMovement();
+                IsGroundSmash = false;
+                //TODO:: ADD FX
+            }
+        }
+        else
+        {
+            hitGround = forwardGrounded || middleGrounded || backwardGrounded;
+        }
+
+
+        if (playerType == PlayerType.MainPlayer)
+        {
+            if (forwardPositon != null)
+            {
+                Enemy forwardEnemy = forwardPositon.GetComponent<Enemy>();
+
+                if (forwardEnemy != null)
+                {
+                    Debug.Log("F: ENemy");
+                    imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
+                                          //TODO:: RESET PLAYER
+                }
+            }
+            else if (middlePositon != null)
+            {
+                Enemy MiddleEnemy = middlePositon.GetComponent<Enemy>();
+
+                if (MiddleEnemy != null)
+                {
+                    Debug.Log("M: ENemy");
+                    imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
+                                          //TODO:: RESET PLAYER
+                }
+
+            }
+            else if (backwardPositon != null)
+            {
+                Enemy backEnemy = backwardPositon.GetComponent<Enemy>();
+                if (backEnemy != null)
+                {
+                    Debug.Log("B: ENemy");
+                    imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
+                                          //TODO:: RESET PLAYER
+                }
+            }
+        }
+
+        //TODO THIS EFFECTS HITTING ENEMIES AND IT WILL GO THROGH THE GROUND
+        //SlopPlayerAngleAdjustment(in hitGround, in forwardPositon, in middlePositon, in backwardPositon);
+
+        if (DebugDraw)
+        {
+            Color rayColor = Color.green;
+
+            if (hitGround)
+            {
+                rayColor = Color.red;
+            }
+
+            Debug.DrawRay(currentCollider.bounds.center + new Vector3(currentCollider.bounds.extents.x, 0), Vector3.down * (currentCollider.bounds.extents.y + GroundRaycastDistance), rayColor);
+            Debug.DrawRay(currentCollider.bounds.center, Vector3.down * (currentCollider.bounds.extents.y + GroundRaycastDistance), rayColor);
+            Debug.DrawRay(currentCollider.bounds.center - new Vector3(currentCollider.bounds.extents.x, 0), Vector3.down * (currentCollider.bounds.extents.y + GroundRaycastDistance), rayColor);
+        }
 
         return hitGround;
     }
 
+    protected override void SlopPlayerAngleAdjustment(in bool hitGround, in Transform forwardPosition, in Transform middlePosition, in Transform backwardPosition)
+    {
+        //float minSlopAngle = 0.1f;
+        float minSlopAngle = 0;
+        // TODO FIX SLOPE ISSUE
+        Quaternion rotationOnSlope = new Quaternion(0, 0, 0, 0);
+        IsOnSlope = false;
+
+        if (hitGround)
+        {
+            if (forwardPosition != null)
+            {
+                if (forwardPosition.localRotation.z >= minSlopAngle || forwardPosition.localRotation.z <= -minSlopAngle)
+                {
+                    IsOnSlope = true;
+                    rotationOnSlope = forwardPosition.localRotation;
+                }
+            }
+            else
+            {
+                if (middlePosition != null)
+                {
+                    if (middlePosition.localRotation.z >= minSlopAngle || middlePosition.localRotation.z <= -minSlopAngle)
+                    {
+                        IsOnSlope = true;
+                        rotationOnSlope = middlePosition.localRotation;
+                    }
+                }
+                else
+                {
+                    if (backwardPosition != null)
+                    {
+                        if (backwardPosition.localRotation.z >= minSlopAngle || backwardPosition.localRotation.z <= -minSlopAngle)
+                        {
+                            IsOnSlope = true;
+                            rotationOnSlope = backwardPosition.localRotation;
+                        }
+                    }
+                }
+            }
+        }
+
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, rotationOnSlope, speedToTransitionIntoSlopAngle);
+    }
+
+    #endregion
+
+    #region Animations
+
+    public override void isGroundedAnimation() => Anim.SetBool(ANIMATIONS_CONSTANTS.IS_GROUNDED_HASH, IsGrounded);
+
+    public override void MoveAnimation(in float direction) => Anim.SetFloat(ANIMATIONS_CONSTANTS.MOVEMENT_SPEED_HASH, direction);
+
+    public override void isJumpAnimation(in bool isJump) => Anim.SetBool(ANIMATIONS_CONSTANTS.IS_JUMP_HASH, isJump);
+
+    public override void isHardLandAnimation(in bool isHashLand) => Anim.SetBool(ANIMATIONS_CONSTANTS.HARD_LAND_HASH, isHashLand);
+
+    public override void isSpeedBoostAnimation(in bool isSpeedUp) => Anim.SetBool(ANIMATIONS_CONSTANTS.SPEED_UP_HASH, isSpeedUp);
+
+    #endregion
+
+    #region LIVING_ENTITY_OVERRIDES
     private void PlayerDeath()
     {
         Debug.Log("Died");
-        imove.StopMovement();
+        imove.StopMovement(false);
     }
 
     private void AddHealthFX()
@@ -121,42 +337,58 @@ public class Player : LivingEntity, IControls
     {
 
     }
+
     #endregion
 
-    public void MovementDirection()
+    private void SwitchPlayers()
     {
-        float direction = Input.GetAxisRaw(Constants.INPUT_HORIONTAL);
-        imove.SetVelocity(direction);
-    }
-
-    #region Public API
-
-    public void JumpInput()
-    {
-        imove.SetIsGrounded(isGrounded);
-
-        Anim.SetBool(Constants.ANIM_IS_GROUNDED , isGrounded);
-
-        if (isGrounded) Anim.SetBool(Constants.ANIM_JUMP , false);
-
-        //bool ButtonDown = Input.GetButtonDown(Constants.INPUT_JUMP);
-        bool ButtonHold = Input.GetButton(Constants.INPUT_JUMP);
-        //bool ButtonUp = Input.GetButtonUp(Constants.INPUT_JUMP);
-
-        //if (ButtonDown) imove.SetJumpInput(ButtonDown);
-        if (ButtonHold) imove.SetJumpInput(ButtonHold);
-        //if (ButtonUp) imove.SetJumpInput(ButtonUp);
-
-    }
-
-    public void AttackInput()
-    {
-        if (Input.GetButtonDown(Constants.INPUT_ATTACK))
+        if (playerType == PlayerType.Secondary)
         {
-            iattack.Attack();
-        }
+            rb = _mainPlayerRB;
+            MainPlayer.transform.parent = transform;
 
+            SecondaryPlayer.transform.parent = MainPlayer.transform;
+
+            MainPlayer.transform.localScale = Vector3.one;
+            MainPlayer.transform.localEulerAngles = Vector3.zero;
+
+            SecondaryPlayer.transform.localScale = Vector3.one;
+            SecondaryPlayer.transform.localEulerAngles = Vector3.zero;
+
+            MainPlayer.SetActive(true);
+            SecondaryPlayer.SetActive(false);
+
+            currentCollider = capsuleCollider;
+
+            playerType = PlayerType.MainPlayer;
+        }
+        else if (playerType == PlayerType.MainPlayer)
+        {
+            rb = _secondaryRB;
+
+            SecondaryPlayer.transform.parent = transform;
+            MainPlayer.transform.parent = SecondaryPlayer.transform;
+
+            SecondaryPlayer.transform.localScale = Vector3.one;
+            SecondaryPlayer.transform.localEulerAngles = Vector3.zero;
+
+            MainPlayer.transform.localScale = Vector3.one;
+            MainPlayer.transform.localEulerAngles = Vector3.zero;
+
+            MainPlayer.SetActive(false);
+            SecondaryPlayer.SetActive(true);
+
+            currentCollider = sphereCollider;
+
+            playerType = PlayerType.Secondary;
+        }
     }
 
     #endregion
+
+    private void Tool_DebugText(string text, Color color)
+    {
+        DebugText.text = text;
+        DebugText.color = color;
+    }
 }

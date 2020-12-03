@@ -1,4 +1,8 @@
-﻿public interface IAttack
+﻿namespace BarnoGames.Runner2020
 {
-    void Attack();
+    internal interface IAttack
+    {
+        void Attack();
+    }
+
 }

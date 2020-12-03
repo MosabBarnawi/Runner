@@ -1,5 +1,6 @@
 ﻿using BarnoGames.Utilities.DeveloperConsole.Commands;
 using System.Collections.Generic;
+using BarnoGames.Runner2020;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace BarnoGames.Utilities.DeveloperConsole.Behavior
         [SerializeField] private GameObject uiCanvas = null;
         [SerializeField] private TMP_InputField inputField = null;
         [SerializeField] private TextMeshProUGUI resultText = null;
+        [SerializeField] private ScrollRect scrollRect;
 
         private float pausedTimeScale;
 
@@ -48,7 +50,7 @@ namespace BarnoGames.Utilities.DeveloperConsole.Behavior
             }
 
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
 
         #endregion
@@ -63,8 +65,8 @@ namespace BarnoGames.Utilities.DeveloperConsole.Behavior
             }
             else
             {
-                if (Time.timeScale > 0) pausedTimeScale = Constants.NORMAL_TIME;
-                else pausedTimeScale = Constants.PAUSE_TIME;
+                if (Time.timeScale > 0) pausedTimeScale = TIME_CONSTANTS.NORMAL_TIME;
+                else pausedTimeScale = TIME_CONSTANTS.PAUSE_TIME;
 
                 Time.timeScale = 0;
                 uiCanvas.SetActive(true);

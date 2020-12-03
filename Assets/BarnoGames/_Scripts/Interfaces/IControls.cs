@@ -1,7 +1,11 @@
-﻿
-public interface IControls
+﻿namespace BarnoGames.Runner2020
 {
-    void MovementDirection();
-    void JumpInput();
-    void AttackInput();
+    internal interface IControls
+    {
+        void MovementDirectionInput();
+        void JumpInput(JumpInput isJump);
+        void AttackInput();
+        void JumpAbilityInput();
+    }
 }
+

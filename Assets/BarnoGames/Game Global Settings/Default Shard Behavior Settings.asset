@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 000475148d9208e43a1e16f63a31c0e3, type: 3}
+  m_Name: Default Shard Behavior Settings
+  m_EditorClassIdentifier: 
+  SharedBoostSpeed: 20
+  HitAmount: 5
+  Rotations:
+  - IdelRotationAxis: {x: 1, y: 1, z: 0}
+    MotionRotationAxis: {x: 1, y: 0, z: 5}
+    ReturningSpeedRotation: {x: -1, y: -1, z: 0}
+  - IdelRotationAxis: {x: 1, y: 1, z: 0}
+    MotionRotationAxis: {x: 1, y: 0, z: 5}
+    ReturningSpeedRotation: {x: -1, y: -1, z: 0}
+  TargetDetection:
+    DetectedObjectColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    SphereRadious: 5
+    MaxDistance: 10
+    TargetableLayerMask:
+      serializedVersion: 2
+      m_Bits: 512
+  throwAttributes:
+    Standard_ShardSpeed: 40
+    Standard_RotationSpeed: 5
+    SpeedToTarget: 3
+  repellAttributes:
+    RepellTime: 1.5
+    FallSpeedAfterRepellSpeed: 5
+    MinTimeCatch: 0.5
+    MaxTimeCatch: 1.2
+    RepellSpeed: 5
+  returnAttributes:
+    ReturnSpeed: 1.8
+    ReturnBoostSpeed: 5

@@ -1,198 +1,126 @@
-﻿using System.Collections.Generic;
-using System.Collections;
+﻿using System;
 using UnityEngine;
 
-public class RigidBodyMovement : MonoBehaviour, IMove
+
+namespace BarnoGames.Runner2020
 {
-    [Header("Movement Controls")]
-
-    [Range(-1f , 1.0f)]
-    public float MovementDirection;
-
-    [SerializeField]
-    private bool
-        hardStop = true,
-        isConstantMovement = false,
-        isAcceleration = false;
-
-    [SerializeField]
-    private float JumpVelocity = 30f;
-    [SerializeField]
-    private float MovementSpeed = 10f;
-
-    private float direction;
-    private bool canMove = true;
-
-    [Space(10)]
-
-    [Header("Jump Controls")]
-    [SerializeField]
-    private int maxNumberOfJumps = 2;
-    //[SerializeField]
-    //private float maxJumpHeigh = 5f;
-    [SerializeField]
-    private float maxJumpTimePerJump = 0.4f;
-
-    [SerializeField]
-    [Tooltip("When the Jump Button Is Held it Applies This Gravity Value")]
-    private float gravityScale = 0.4f;
-    [SerializeField]
-    private float defultGravityScale = 0.8f;
-    private float _gravity;
-
-    private float _fallingTimerDelay;
-    private int _jumpCounter;
-
-    [Header("Caching")]
-    private Rigidbody rb;
-    private Player _player;
-
-    private bool _isJumpPressed;
-    protected bool isGrounded { get; private set; }
-
-    #region Unity Callbacks
-
-    void Start()
+    [DisallowMultipleComponent]
+    public partial class RigidBodyMovement : MonoBehaviour, IMove
     {
-        rb = GetComponent<Rigidbody>();
-        _player = GetComponent<Player>();
+        [Header("Movement Controls")]
 
-        if (rb == null)
+        [Range(-1f, 1.0f)]
+        [SerializeField] private float movementDirection = 1f;
+        [SerializeField] private bool isConstantMovement = false;
+
+        private float direction;
+        private bool canMove = true;
+
+        #region Caching
+        [Header("Caching")]
+        private GlobalPlayerMovementSettings playerSettings;
+        private GlobalJumpSettings globalJumpSettings;
+        private Character character;
+        #endregion
+
+        #region Unity Callbacks
+
+        private void Awake() => character = GetComponent<Character>();
+
+        private void OnEnable()
         {
-            Debug.LogError("RigidBody not Found");
+            if (character.IAmPlayer)
+                PlayerInputControls.MoveAction = SetVelocity;
+        }
+        void Start()
+        {
+            if (character.IAmPlayer && PlayerInputControls.MoveAction == null)
+            {
+                PlayerInputControls.MoveAction = SetVelocity;
+                Debug.Log($"***Not Assigned . {PlayerInputControls.MoveAction.Method}");
+            }
+
+            globalJumpSettings = GameManager.SharedInstance.GlobalsJumpSettings;
+            playerSettings = GameManager.SharedInstance.GlobalPlayerMovementSettings;
         }
 
-        _gravity = defultGravityScale;
-    }
-
-    void FixedUpdate()
-    {
-        if (canMove)
+        private void OnDisable()
         {
-            if (isConstantMovement)
+            if (character.IAmPlayer) PlayerInputControls.MoveAction -= SetVelocity;
+        }
+
+        private void OnDestroy()
+        {
+            if (character.IAmPlayer) PlayerInputControls.MoveAction -= SetVelocity;
+        }
+
+        void FixedUpdate()
+        {
+            if (canMove && character.CanAnimateCharacter)
             {
-                MovePlayer(MovementDirection);
-            }
-            else
-            {
-                if (hardStop)
-                {
-                    if (direction != 0)
-                    {
-                        MovePlayer(direction);
-                    }
-                    else
-                    {
-                        MovePlayer(0);
-                    }
-                }
+                if (isConstantMovement)
+                    MoveCharacter(movementDirection);
                 else
-                {
-                    MovePlayer(direction);
-                }
+                    MoveCharacter(direction);
             }
         }
-    }
 
-    private void Update()
-    {
-        Jump();
-    }
+        #endregion
 
-    #endregion
+        #region Private API
 
-    #region Private API
-    private void Jump()
-    {
-        if (isGrounded)
+        private void MoveCharacter(in float direction)
         {
-            _jumpCounter = 0;
-        }
+            character.MoveAnimation(direction);
 
-        if (_isJumpPressed)
-        {
-            if (_jumpCounter < maxNumberOfJumps)
+            //TODO:: ADD DIFF FOR NON PLAYER
+            float speed = direction * playerSettings.MovementSpeed * Time.fixedDeltaTime;
+
+            try
             {
-                //if (input == Input.GetButtonDown(Constants.INPUT_JUMP))
-                //{
-                //    rb.velocity = Vector3.up * JumpVelocity;
-                //}
-
-                if (_isJumpPressed == Input.GetButton(Constants.INPUT_JUMP) && _fallingTimerDelay <= maxJumpTimePerJump)
-
-                {
-                    _player.Anim.SetBool(Constants.ANIM_JUMP , true);
-                    _player.Anim.SetBool(Constants.ANIM_HARD_LAND , false);
-
-                    _gravity = gravityScale;
-
-                    //if(transform.position.y < maxJumpHeigh)
-                    rb.velocity = Vector3.up * JumpVelocity / 2;
-
-
-                    _fallingTimerDelay += Time.deltaTime;
-                }
-                else _gravity = defultGravityScale;
-
-                if (_isJumpPressed == Input.GetButtonUp(Constants.INPUT_JUMP))
-                {
-                    if (_fallingTimerDelay < maxJumpTimePerJump)
-                    {
-                        //rb.velocity = Vector3.up * JumpVelocity * 0.1f;
-
-                        if (rb.velocity.y <= 5) _player.Anim.SetBool(Constants.ANIM_HARD_LAND , true);
-                        else _player.Anim.SetBool(Constants.ANIM_HARD_LAND , false);
-                    }
-
-                    _player.Anim.SetBool(Constants.ANIM_JUMP , false);
-
-                    _jumpCounter++;
-
-                    _fallingTimerDelay = 0;
-                }
+                if (character.iJump.GetHangTime().isHangSpeed)
+                    speed = direction * globalJumpSettings.HangForwardSpeed * Time.fixedDeltaTime;
             }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+
+            float speedClmap = Mathf.Clamp(speed * 100, 0, speed * 100);
+
+            character.rb.velocity = new Vector3(/*speed * 100*/speedClmap, character.rb.velocity.y, character.rb.velocity.z);
         }
-    }
 
-    private void MovePlayer( float direction )
-    {
-        _player.Anim.SetFloat(Constants.ANIM_MOVEMENT_SPEED , direction);
+        #endregion
 
-        float speed = direction * MovementSpeed * Time.fixedDeltaTime;
+        #region Public API
 
-        if (isAcceleration)
+        #region IMove Interface
+        public void SetVelocity(float VelocityVector)
         {
-            rb.velocity += new Vector3(speed , rb.velocity.y - _gravity , 0);
+            if (!isConstantMovement)
+                direction = VelocityVector;
         }
-        else
+
+        public void StopMovement(bool freezeInSpace)
         {
-            rb.velocity = new Vector3(speed * 100 , rb.velocity.y - _gravity , 0);
+            canMove = false;
+            character.rb.velocity = Vector3.zero;
+            Debug.Log("STOP");
+
+            if (freezeInSpace) character.rb.isKinematic = true;
         }
+
+        public void EnableMovement()
+        {
+            Debug.Log("Enable Running");
+            canMove = true;
+
+            character.rb.isKinematic = false;
+        }
+        #endregion
+
+        #endregion
+
     }
-    #endregion
-
-    #region Public API
-    public void SetJumpInput( bool pressed )
-    {
-        _isJumpPressed = pressed;
-    }
-
-    public void SetIsGrounded( bool isGrounded )
-    {
-        this.isGrounded = isGrounded;
-    }
-
-    public void StopMovement()
-    {
-        canMove = false;
-    }
-
-    public void SetVelocity( float VelocityVector )
-    {
-        if (!isConstantMovement)
-            direction = VelocityVector;
-    }
-
-    #endregion
-
 }

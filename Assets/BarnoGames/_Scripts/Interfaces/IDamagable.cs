@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 
-public interface IDamagable
+namespace BarnoGames.Runner2020
 {
-    void TakeHit( float damage , RaycastHit hit );
-
-    void TakeDamage( float damage );
+    internal interface IDamagable
+    {
+        void TakeHit(float damage, RaycastHit hit);
+        void TakeDamage(float damage);
+    }
 }
 
