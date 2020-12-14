@@ -1,4 +1,9 @@
+using UnityEngine;
+
 namespace BarnoGames.Runner2020
 {
-    public interface IClimableTAG { }
+    public interface IClimableTAG 
+    {
+        Transform ExitPointTransform { get;}
+    }
 }

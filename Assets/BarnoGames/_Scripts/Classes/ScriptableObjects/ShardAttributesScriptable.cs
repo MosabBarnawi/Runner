@@ -13,7 +13,8 @@ namespace BarnoGames.Runner2020
     {
         [Header("Abilities")]
         [Tooltip("Boost after Help Wall Jump form Shard")]
-        public float SharedBoostSpeed = 20f;
+        public float SharedBoostForwardSpeed = 20f;
+        public float ShardBoostUpSpeed = 30f;
 
         [Space(10)]
         public float HitAmount = 5f;

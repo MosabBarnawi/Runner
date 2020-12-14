@@ -8,11 +8,9 @@ namespace BarnoGames.Runner2020
 {
     public class ShardBehavior : MonoBehaviour
     {
-        //public static ShardBehavior SharedInstance;
-
         private Rigidbody rb;
         private BoxCollider transformCollider;
-        private Transform sharedParent;
+        [SerializeField] private Transform sharedParent;
 
         [SerializeField] private Transform[] CurvePoints = new Transform[2];
 
@@ -21,14 +19,14 @@ namespace BarnoGames.Runner2020
         [Header("States")]
         [SerializeField] private bool isEnmeyTrageted = false;
         [SerializeField] private ShardMotionType shardMotionType;
+        public ShardMotionType ShardMotionType => shardMotionType;
 
         [SerializeField] private ShardAttributesScriptable shardSpecification;
 
         private TargetDetectionCalculations targetDetectionCalculations = new TargetDetectionCalculations();
         private ReturningCalculations returningCalculations = new ReturningCalculations();
 
-        public Action Action_ShardBoostPlayer;
-        private bool canBoostPlayer;
+        private bool returnAfterTeleport;
 
         [SerializeField] private Transform Cliff;
         private GameObject CliffGameObject;
@@ -36,7 +34,8 @@ namespace BarnoGames.Runner2020
 
         [SerializeField] private Transform VisualCuverLocation;
 
-        public float ShardBoostSpeed => shardSpecification.SharedBoostSpeed;
+        public float ShardBoostForwardSpeed => shardSpecification.SharedBoostForwardSpeed;
+        public float ShardBoostUpSpeed => shardSpecification.ShardBoostUpSpeed;
 
         private bool isHitRecallTiming = false;
         private float timeToRepell;
@@ -49,8 +48,6 @@ namespace BarnoGames.Runner2020
 
         private void Awake()
         {
-            //SharedInstance = this;
-
             rb = GetComponent<Rigidbody>();
 
             if (rb.interpolation != RigidbodyInterpolation.None)
@@ -77,10 +74,9 @@ namespace BarnoGames.Runner2020
             }
 
             rb.isKinematic = true;
-            //rb.interpolation = RigidbodyInterpolation.Interpolate;
 
             transformCollider.enabled = false;
-            sharedParent = transform.parent;
+            //sharedParent = transform.parent;
 
             CliffGameObject.SetActive(false);
 
@@ -89,19 +85,20 @@ namespace BarnoGames.Runner2020
 
         private void OnDisable()
         {
-            PlayerInputControls.AttackAction -= Attack;
+            //PlayerInputControls.AttackAction -= Attack;
             rb.interpolation = RigidbodyInterpolation.None;
         }
 
         private void OnDestroy() => PlayerInputControls.AttackAction -= Attack;
 
-        void Update() => DetectEnemies();
-
+        void Update()
+        {
+            DetectEnemies();
+        }
         private void FixedUpdate() => ShardAnimation();
 
         private void OnCollisionEnter(Collision collision)
         {
-
             if (collision.transform.GetComponent<IPlayerTAG>() != null) return;
 
             if (shardMotionType == ShardMotionType.GoingToEnemy || shardMotionType == ShardMotionType.inMotion)
@@ -110,13 +107,14 @@ namespace BarnoGames.Runner2020
                 {
                     if (collision.transform.GetComponent<IClimableTAG>() != null)
                     {
-                        ClimableWall cliffHeightScript = collision.transform.gameObject.GetComponent<ClimableWall>();
+                        //ClimableWall cliffHeightScript = collision.transform.gameObject.GetComponent<ClimableWall>();
+                        //IClimableTAG cliffHeightScript = collision.transform.gameObject.GetComponent<ClimableWall>();
+                        IClimableTAG cliffHeightScript = collision.transform.gameObject.GetComponent<IClimableTAG>();
 
-                        float height = cliffHeightScript.Height;
+                        Vector3 exitPoint = new Vector3(cliffHeightScript.ExitPointTransform.position.x, cliffHeightScript.ExitPointTransform.position.y, 0);
+                        shardClifBehavior.exitPosition = exitPoint;
 
-                        shardClifBehavior.CliffHeight = height;
-
-                        StickToWall(in cliffHeightScript);
+                        StickToWall();
                     }
                 }
 
@@ -124,6 +122,9 @@ namespace BarnoGames.Runner2020
                 {
                     IDamagable damagable = collision.transform.GetComponent<IDamagable>();
                     damagable.TakeDamage(shardSpecification.HitAmount);
+
+                    HitFX();
+
                     Repell();
                 }
             }
@@ -179,12 +180,8 @@ namespace BarnoGames.Runner2020
             if (shardMotionType == ShardMotionType.GoingToEnemy)
             {
                 // 0.1 for error
-                //if (shardSpecification.TargetDetection.TravelToTargetTime <= 5f)
                 if (targetDetectionCalculations.TravelToTargetTime <= 2f)
                 {
-                    //Vector3 targetOffset = new Vector3(EnemyTarget.position.x, EnemyTarget.position.y, EnemyTarget.position.z - 3);
-
-                    //rb.position = CurvePoint.GetBQCPoint(shardSpecification.ReturnAttributes.CurrentPosition, shardSpecification.RadndomDistanceBetweenShardAndTarget, shardSpecification.TargetDetection.TargetPositon, TravelToTargetTime);
                     rb.position = CurvePoint.GetBQCPoint(returningCalculations.CurrentPosition, targetDetectionCalculations.RadndomDistanceBetweenShardAndTarget, targetDetectionCalculations.TargetPositon, targetDetectionCalculations.TravelToTargetTime);
 
                     targetDetectionCalculations.TravelToTargetTime += shardSpecification.ThrowAttributes.SpeedToTarget * Time.fixedDeltaTime;
@@ -230,13 +227,11 @@ namespace BarnoGames.Runner2020
                 if (returningCalculations.ReturningTime < 1f)
                 {
                     rb.position = CurvePoint.GetBQCPoint(returningCalculations.CurrentPosition,
-                                                         //shardSpecification.ReturnAttributes.CurvePoint[shardSpecification.ReturnAttributes.RandomCurvePointIndex].position,
                                                          CurvePoints[returningCalculations.RandomCurvePointIndex].position,
                                                          sharedParent.position,
                                                          returningCalculations.ReturningTime);
-                    //rb.AddTorque(transform.TransformDirection(Vector3.back) * Standard_RotationSpeed , ForceMode.Impulse);
 
-                    if (canBoostPlayer) // TODO:: IF SLOW RETUNR SPEED MIGHT CAUSE AN ISSUE
+                    if (returnAfterTeleport) // TODO:: START FROM END POINT TELEPORTATION SPOT
                     {
                         returningCalculations.ReturningTime += shardSpecification.ReturnAttributes.ReturnBoostSpeed * Time.fixedDeltaTime;
                     }
@@ -269,18 +264,14 @@ namespace BarnoGames.Runner2020
             animator.enabled = endLevel;
         }
 
-
-        private void StickToWall(in ClimableWall cliffHeightScript)
+        private void StickToWall()
         {
-            //isInMotion = false;
-            //isStuck = true;
             shardMotionType = ShardMotionType.Stuck;
 
             rb.isKinematic = true;
             transformCollider.enabled = false;
 
             Cliff.position = transform.position + new Vector3(-2, 0, 0);
-            //Cliff.position = transform.position + cliffHeightScript.CliffCenter;
 
             Cliff.rotation = Quaternion.Euler(0, 0, 0);
 
@@ -293,14 +284,9 @@ namespace BarnoGames.Runner2020
 
             transform.parent = sharedParent;
 
-            //rb.isKinematic = true;
-            returningCalculations.ReturningTime = 0;
+            transform.position = sharedParent.position;
 
-            if (canBoostPlayer)
-            {
-                Action_ShardBoostPlayer?.Invoke();
-                Debug.Log("Coming to boost");
-            }
+            returningCalculations.ReturningTime = 0;
 
             targetDetectionCalculations.TravelToTargetTime = 0;
             timeToRepell = 0;
@@ -309,7 +295,6 @@ namespace BarnoGames.Runner2020
         private void DetectEnemies() //TODO :: ADD FREQUENCY TO UPDATE MAYBE
         {
             if (shardMotionType != ShardMotionType.Idel) return;
-
 
             targetDetectionCalculations.Origin = transform.position;
             targetDetectionCalculations.Direction = Vector3.right;
@@ -324,11 +309,8 @@ namespace BarnoGames.Runner2020
                  shardSpecification.TargetDetection.TargetableLayerMask,
                  QueryTriggerInteraction.UseGlobal))
             {
-                //shardSpecification.EnemyDetection.CurrentEnemy = hit.transform.GetComponent<Enemy>();
-                //shardSpecification.EnemyDetection.CurrentEnemy.DetectedColor(shardSpecification.EnemyDetection.DetectedEmenyColor);
                 targetDetectionCalculations.Targetable = hit.transform.GetComponent<ITargetable>();
 
-                //if (shardSpecification.EnemyDetection.targetable != null)
                 targetDetectionCalculations.Targetable?.DetectedColor(shardSpecification.TargetDetection.DetectedObjectColor);
 
                 targetDetectionCalculations.CurrentHitDistance = hit.distance;
@@ -341,13 +323,7 @@ namespace BarnoGames.Runner2020
 
                 targetDetectionCalculations.CurrentHitDistance = shardSpecification.TargetDetection.MaxDistance;
 
-                //if (shardSpecification.EnemyDetection.CurrentEnemy != null)
-                //    shardSpecification.EnemyDetection.CurrentEnemy.ResetColor();
-                //if (shardSpecification.EnemyDetection.targetable != null)
                 targetDetectionCalculations.Targetable?.ResetColor();
-
-
-                //shardSpecification.EnemyDetection.CurrentEnemy = null;
                 targetDetectionCalculations.Targetable = null;
             }
         }
@@ -356,16 +332,9 @@ namespace BarnoGames.Runner2020
         {
             Debug.Log("Repelling");
             rb.AddForce(Vector3.up * shardSpecification.RepellAttributes.RepellSpeed, ForceMode.Impulse);
-            //isRepelling = true;
             shardMotionType = ShardMotionType.Repelling;
-            //GoingToEnemy = false;
         }
 
-
-        /// <summary>
-        /// CAN DO A CALLBACK
-        /// AND QUEUE FOR MUTIPLE ACTIONS FOR BONUSES
-        /// </summary>
         private void ThrowShard()
         {
             if (isEnmeyTrageted)
@@ -408,14 +377,10 @@ namespace BarnoGames.Runner2020
                 isHitRecallTiming = false;
             }
 
-
-            //shardSpecification.ReturnAttributes.RandomCurvePointIndex = UnityEngine.Random.Range(0, shardSpecification.ReturnAttributes.CurvePoint.Length);
-
             returningCalculations.GetRandomReturnPoint(CurvePoints.Length);
 
             returningCalculations.CurrentPosition = transform.position;
             transformCollider.enabled = false;
-
 
             shardMotionType = ShardMotionType.Returning;
 
@@ -425,7 +390,16 @@ namespace BarnoGames.Runner2020
 
             CliffGameObject.SetActive(false);
 
-            canBoostPlayer = isboost;
+            returnAfterTeleport = isboost;
+        }
+
+         public void HardResetShard()
+        {
+            rb.isKinematic = true;
+            rb.velocity = Vector3.zero;
+            transformCollider.enabled = false;
+            CliffGameObject.SetActive(false);
+            ResetShard();
         }
 
 
@@ -437,6 +411,37 @@ namespace BarnoGames.Runner2020
             else if (shardMotionType != ShardMotionType.Returning)
                 RecallShard(false);
         }
+
+        private bool stopping;
+        [SerializeField] private float stopTime = 0.2f;
+        [SerializeField] private float slowTime = 0.2f;
+
+        private void HitFX()
+        {
+            if (!stopping)
+            {
+                Vibration.Vibrate();
+                stopping = true;
+                Time.timeScale = 0;
+                // IF USE COROTINE FOR SHAKE IT SHAKES THE SAME SPEED AS IT WOULD
+                // BUT USING UPDATE IT SHAKES RELATED TO TIME SCALES
+                StartCoroutine(HitEffectSlow());
+                CameraShake.SharedInstance.Shake();
+            }
+        }
+
+        private IEnumerator HitEffectSlow()
+        {
+            yield return new WaitForSecondsRealtime(stopTime);
+
+            Time.timeScale = 0.01f;
+
+            yield return new WaitForSecondsRealtime(slowTime);
+
+            Time.timeScale = 1;
+            stopping = false;
+        }
+
         #endregion
     }
 }

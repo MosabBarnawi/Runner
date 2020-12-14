@@ -16,32 +16,20 @@ namespace BarnoGames.Runner2020
         private float direction;
         private bool canMove = true;
 
-        #region Caching
-        [Header("Caching")]
-        private GlobalPlayerMovementSettings playerSettings;
-        private GlobalJumpSettings globalJumpSettings;
+        [SerializeField] private MovementSettings movementSettings;
         private Character character;
-        #endregion
 
         #region Unity Callbacks
 
         private void Awake() => character = GetComponent<Character>();
 
-        private void OnEnable()
-        {
-            if (character.IAmPlayer)
-                PlayerInputControls.MoveAction = SetVelocity;
-        }
         void Start()
         {
-            if (character.IAmPlayer && PlayerInputControls.MoveAction == null)
+            if (character.IAmPlayer /*&& PlayerInputControls.MoveAction == null*/)
             {
                 PlayerInputControls.MoveAction = SetVelocity;
-                Debug.Log($"***Not Assigned . {PlayerInputControls.MoveAction.Method}");
+                //Debug.Log($"***Not Assigned . {PlayerInputControls.MoveAction.Method}");
             }
-
-            globalJumpSettings = GameManager.SharedInstance.GlobalsJumpSettings;
-            playerSettings = GameManager.SharedInstance.GlobalPlayerMovementSettings;
         }
 
         private void OnDisable()
@@ -74,12 +62,12 @@ namespace BarnoGames.Runner2020
             character.MoveAnimation(direction);
 
             //TODO:: ADD DIFF FOR NON PLAYER
-            float speed = direction * playerSettings.MovementSpeed * Time.fixedDeltaTime;
+            float speed = direction * movementSettings.MovementSpeed * Time.fixedDeltaTime;
 
             try
             {
-                if (character.iJump.GetHangTime().isHangSpeed)
-                    speed = direction * globalJumpSettings.HangForwardSpeed * Time.fixedDeltaTime;
+                if (character.iJump.GetHangTime().isHangSpeed) //TODO:: GET PLAYER HANGFORWARD SPEED
+                    speed = direction * movementSettings.HangForwardSpeed * Time.fixedDeltaTime;
             }
             catch (Exception e)
             {
@@ -88,7 +76,7 @@ namespace BarnoGames.Runner2020
 
             float speedClmap = Mathf.Clamp(speed * 100, 0, speed * 100);
 
-            character.rb.velocity = new Vector3(/*speed * 100*/speedClmap, character.rb.velocity.y, character.rb.velocity.z);
+            character.RB.velocity = new Vector3(/*speed * 100*/speedClmap, character.RB.velocity.y, character.RB.velocity.z);
         }
 
         #endregion
@@ -105,10 +93,10 @@ namespace BarnoGames.Runner2020
         public void StopMovement(bool freezeInSpace)
         {
             canMove = false;
-            character.rb.velocity = Vector3.zero;
+            character.RB.velocity = Vector3.zero;
             Debug.Log("STOP");
 
-            if (freezeInSpace) character.rb.isKinematic = true;
+            if (freezeInSpace) character.RB.isKinematic = true; //TODO:: FIX WARRNING
         }
 
         public void EnableMovement()
@@ -116,7 +104,7 @@ namespace BarnoGames.Runner2020
             Debug.Log("Enable Running");
             canMove = true;
 
-            character.rb.isKinematic = false;
+            character.RB.isKinematic = false;
         }
         #endregion
 

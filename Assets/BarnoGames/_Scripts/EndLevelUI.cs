@@ -16,15 +16,19 @@ namespace BarnoGames.Runner2020
         [SerializeField] private Button goToNextLevelButton;
         [SerializeField] private float winStateTimeSpeed = 0.05f;
 
+        [SerializeField] private Button restartLevelButton;
+
         #region Unity Callbacks
         private void OnEnable()
         {
-            goToNextLevelButton.onClick.AddListener(IHaveBeenClicked);
+            goToNextLevelButton.onClick.AddListener(NextLevelClicked);
+            restartLevelButton.onClick.AddListener(RestartLevelClick);
         }
 
         private void OnDisable()
         {
-            goToNextLevelButton.onClick.RemoveListener(IHaveBeenClicked);
+            goToNextLevelButton.onClick.RemoveListener(NextLevelClicked);
+            restartLevelButton.onClick.RemoveListener(RestartLevelClick);
         }
 
         #endregion
@@ -33,17 +37,23 @@ namespace BarnoGames.Runner2020
         {
             canvas.gameObject.SetActive(isActive);
 
-            if (isActive) StartCoroutine(SlowMotion());
+            //if (isActive) StartCoroutine(SlowMotion());
+            if (isActive) StartCoroutine(SlowMotion2());
 
-            GameManager.SharedInstance.SetPostProcessingType(isActive);
+            //GameManager.SharedInstance.SetPostProcessingType(isActive);
         }
 
-        private void IHaveBeenClicked()
-        {
-            GameManager.SharedInstance.GoToNextLevel();
-        }
+        private void NextLevelClicked() => GameManager.SharedInstance.GoToNextLevel();
+
+        private void RestartLevelClick() => GameManager.SharedInstance.ResetLevel();
 
         // TODO:: WHEN CAMERA STOPS MOVING SHOW BUTTONS AND STATS
+        private IEnumerator SlowMotion2()
+        {
+            imageFadeout.gameObject.SetActive(false);
+            yield return new WaitForSeconds(activationToImageFadeWait);
+            Time.timeScale = winStateTimeSpeed;
+        }    
         private IEnumerator SlowMotion()
         {
             canvas.gameObject.SetActive(true);

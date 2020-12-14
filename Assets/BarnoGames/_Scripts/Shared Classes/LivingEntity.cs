@@ -10,6 +10,7 @@ namespace BarnoGames.Runner2020
         protected Action OnDeath;
         protected Action OnAddHealth;
         protected Action OnTakeHit;
+        protected Action OnRespawn;
 
         [Space(10)]
         [SerializeField] private LivingEntityHealth entityHealth;
@@ -50,6 +51,14 @@ namespace BarnoGames.Runner2020
 
             if (entityHealth.Health <= 0 && !IsDead)
                 Die();
+        }
+
+        public void InstantDie() => Die();
+
+        public void Respawn()
+        {
+            IsDead = false;
+            OnRespawn?.Invoke();
         }
 
         #endregion

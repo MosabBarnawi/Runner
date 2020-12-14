@@ -19,7 +19,7 @@ namespace BarnoGames.Runner2020
 
         public Button ConsoleButton;
 
-        public LevelManager CurrentLevel;
+        public LevelLocationSpawnerManager CurrentLevel;
 
         [Space(10)]
         [Header("Top UI")]
@@ -37,12 +37,6 @@ namespace BarnoGames.Runner2020
         [Header("Console")]
         [SerializeField] private DeveloperConsoleBehavior developerConsoleBehavior;
 
-        [Header("Global Controls")]
-        public GlobalJumpSettings GlobalsJumpSettings;
-
-        [Header("Player Global Controls")]
-        public GlobalPlayerMovementSettings GlobalPlayerMovementSettings;
-
         [Space(10)]//TODO:: MOVE TO POST PROCESSING MANAGER
         [Header("Post Processing")]
         [SerializeField] private Volume GlobalVolume;
@@ -55,6 +49,22 @@ namespace BarnoGames.Runner2020
         [SerializeField] private EndLevelUI endLevelUI;
         //public Action SlowDown;
         public Action<bool> SlowDown;
+        public Action OnWinStateAction;
+
+        [Space(10)]
+        [Header("Death UI")]
+        [SerializeField] private Canvas DeathCanvas;
+        [SerializeField] private Button RestartButton;
+        [SerializeField] private Button PlaceHolderAdd;
+        public Action OnPlayerRespawn;
+        private int deathCounter;
+        private int numberOfDeathsToShowAdd = 3;
+
+
+
+        [Space(10)]
+        [Header("FX")]
+        public GameObject TeleportFX;
 
         private int PointsCount;
         public event EventHandler<TestingM> OnCollectedItem;
@@ -81,19 +91,29 @@ namespace BarnoGames.Runner2020
         {
             if (PasueButton != null) PasueButton.onClick.AddListener(TogglePauseMenu);
             if (ConsoleButton != null) ConsoleButton.onClick.AddListener(ToggleConsoleScreen);
+            if (RestartButton != null) RestartButton.onClick.AddListener(RestartAfterPlayerDeath);
+            if (PlaceHolderAdd != null) PlaceHolderAdd.onClick.AddListener(RestartAfterPlayerDeath);
         }
 
         private void Start()
         {
             Init();
             developerConsoleBehavior = FindObjectOfType<DeveloperConsoleBehavior>();
-            SceneManager.UnloadScene(SceneManager.GetActiveScene()); //TODO:: FIND A BETTER WAY TO UNLAD THIS, IT MIGHT CAUSE ERRORS
+            SceneManager.UnloadSceneAsync("Player"); //TODO:: FIND A BETTER WAY TO UNLAD THIS, IT MIGHT CAUSE ERRORS
+
+            EnableInputCanvas(false);
+            SetDefaultGameState(false);
+            //PlayerInputControls.Player.PlayerFalling();
+
+            PlayerInputControls.Player.PlayerHasDiedAction = PlayerHasDied;
         }
 
         private void OnDisable()
         {
             if (PasueButton != null) PasueButton.onClick.RemoveAllListeners();
             if (ConsoleButton != null) ConsoleButton.onClick.RemoveAllListeners();
+            if (RestartButton != null) RestartButton.onClick.RemoveAllListeners();
+            if (PlaceHolderAdd != null) PlaceHolderAdd.onClick.RemoveAllListeners();
         }
 
         private void Update()
@@ -103,11 +123,14 @@ namespace BarnoGames.Runner2020
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                //Scene sceneLoaded = SceneManager.GetActiveScene();
-                //SceneManager.LoadScene(sceneLoaded.buildIndex);
-
-                //CurrentLevel.SpawnPlayerHere(PlayerInputControls.Player);
+                ResetLevel();
             }
+
+            //if (Input.GetKeyDown(KeyCode.S))
+            //{
+            //    //LevelStart();
+            //    //PlayerInputControls.Player.LevelStarted();
+            //}
 
             //if (Input.GetKeyDown(KeyCode.Space))
             //{
@@ -117,69 +140,176 @@ namespace BarnoGames.Runner2020
         }
 
         #endregion
+        public void LevelStart()
+        {
+            EnableInputCanvas(true);
+        }
+
+        public void LoadSpecificLevel(int LevelToLoad)
+        {
+            AsyncOperation operation = SceneManager.LoadSceneAsync(LevelToLoad, UnityEngine.SceneManagement.LoadSceneMode.Single);
+
+            operation.completed += (asyncOperation) =>
+            {
+                Debug.Log("Finished");
+                //SceneManager.UnloadScene(LevelToUnload);
+                //SceneManager.UnloadScene(4);
+
+                CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
+
+                //Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
+
+                PlayerInputControls.Player.ReSpawnToPositionLevelStart_falling(CurrentLevel.SpawnPosition.position);
+                //SlowDown?.Invoke(false);
+                SetDefaultGameState(false);
+                EnableInputCanvas(true);
+
+                ResetLevel();
+            };
+        }
+
+        private void PlayerHasDied() => EnableDeathUI(true); // CALLED FROM PLAYER SCRIPT TO DO GAME MANAGER THINGS RELATING TO PLAYERS DEATH
 
         #region Public API
 
         #region Leveling Managment
         public void CompletedLevelState()
         {
-            SlowDown?.Invoke(true);
-            EnableInputCanvas(false);
+            //SlowDown?.Invoke(true);
+            OnWinStateAction?.Invoke();
 
-            PlayerInputControls.Player.PlayerInWinState();
+            EnableInputCanvas(false);
+            //endLevelUI.EnableScreen(true);
+            //SetPostProcessingType(true);
+            SetDefaultGameState(true);
 
             SceneManager.LoadScene(4, UnityEngine.SceneManagement.LoadSceneMode.Additive);
-
-            endLevelUI.EnableScreen(true);
         }
 
-
-        public void SetPostProcessingType(bool winState) //TODO:: MOVE TO POST PROCESSING MANAGER
+        private void SetDefaultGameState(bool winState)
         {
-            if (winState) GlobalVolume.profile = WinStaeprofile;
-            else GlobalVolume.profile = Defualtprofile;
+            SetPostProcessingType(winState);
+            endLevelUI.EnableScreen(winState);
+            SlowDown?.Invoke(winState);
+
+            if (!winState) PlayerInputControls.Player.PlayerFalling();
+        }
+
+        private void SetPostProcessingType(bool winState) //TODO:: MOVE TO POST PROCESSING MANAGER
+        {
+            if (winState)
+            {
+                GlobalVolume.profile = WinStaeprofile;
+            }
+            else
+            {
+                GlobalVolume.profile = Defualtprofile;
+                Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
+            }
+        }
+
+        public void ResetLevel()
+        {
+            int currentLevel = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentLevel);
+
+            CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
+            PlayerInputControls.Player.ReSpawnToPosition(CurrentLevel.SpawnPosition.position);
+
+            SetDefaultGameState(false);
+
+            //endLevelUI.EnableScreen(false);
+            EnableDeathUI(false);
+            //TODO:: THIS IS FOR TESTING
+            if (PauseMenu.activeSelf) TogglePauseMenu();
+
+            PlayerInputControls.Player.LevelStarted();
+        }
+
+        private void RestartAfterPlayerDeath()
+        {
+            //ResetLevel();
+            CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
+            PlayerInputControls.Player.ReSpawnToPosition(CurrentLevel.SpawnPosition.position);
+
+            EnableDeathUI(false);
+
+            EnableInputCanvas(true);
+            OnPlayerRespawn?.Invoke();
+        }
+
+        private bool ShowAD()
+        {
+            deathCounter++;
+            RestartButton.gameObject.SetActive(false);
+            PlaceHolderAdd.gameObject.SetActive(false);
+
+            if (deathCounter < numberOfDeathsToShowAdd)
+            {
+                RestartButton.gameObject.SetActive(true);
+                return false;
+            }
+            else
+            {
+                PlaceHolderAdd.gameObject.SetActive(true);
+                Debug.Log("Show Ad");
+                deathCounter = 0;
+                return true;
+            }
         }
 
         public void GoToNextLevel()
         {
             CurrentLevel = null;
 
-            int LevelToUnload = 2;
-            int LevelToLoad = 3;
-
+            //PlayerInputControls.Player.PlayerFalling();
             if (SceneManager.GetActiveScene().buildIndex == 2)
             {
                 LevelToLoad = 3;
-                LevelToUnload = 2;
             }
             else if (SceneManager.GetActiveScene().buildIndex == 3)
             {
                 LevelToLoad = 2;
-                LevelToUnload = 3;
             }
 
-
-            AsyncOperation operation = SceneManager.LoadSceneAsync(LevelToLoad, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+            AsyncOperation operation = SceneManager.LoadSceneAsync(5, UnityEngine.SceneManagement.LoadSceneMode.Single);
 
             operation.completed += (asyncOperation) =>
             {
-                Debug.Log("Finished");
-                SceneManager.UnloadScene(LevelToUnload);
-                SceneManager.UnloadScene(4);
+                //endLevelUI.EnableScreen(false);
+                SetDefaultGameState(false);
 
-                CurrentLevel = FindObjectOfType<LevelManager>();
-
-                Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
-
+                CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
                 PlayerInputControls.Player.ReSpawnToPosition(CurrentLevel.SpawnPosition.position);
-                SlowDown?.Invoke(false);
-                endLevelUI.EnableScreen(false);
-                EnableInputCanvas(true);
-            };
+                PlayerInputControls.Player.PlayerFalling();
+                //Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
 
+                StartCoroutine(startNextLevelStudd());
+            };
         }
 
         #endregion
+
+        int LevelToLoad = 3;
+        private IEnumerator startNextLevelStudd()
+        {
+            yield return new WaitForSecondsRealtime(3);
+
+            CurrentLevel = null;
+
+            AsyncOperation nextLevelOperation = SceneManager.LoadSceneAsync(LevelToLoad, UnityEngine.SceneManagement.LoadSceneMode.Single);
+
+            nextLevelOperation.completed += (asyncOperation2) =>
+            {
+                Debug.Log("Finished");
+                CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
+
+                PlayerInputControls.Player.ReSpawnToPositionLevelStart_falling(CurrentLevel.SpawnPosition.position);
+
+                //SlowDown?.Invoke(false);
+                //SetDefaultGameState(false);
+            };
+        }
 
 
         private void EnableInputCanvas(bool enable)
@@ -212,6 +342,11 @@ namespace BarnoGames.Runner2020
             //player = FindObjectOfType<Player>();
         }
 
+        private void EnableTopUI(bool enable)
+        {
+            TopUI.SetActive(enable);
+        }
+
         private void ToggleConsoleScreen()
         {
             if (developerConsoleBehavior != null)
@@ -221,6 +356,15 @@ namespace BarnoGames.Runner2020
                     developerConsoleBehavior.ToggleOptionsMenu();
                 }
             }
+        }
+
+        private void EnableDeathUI(bool enable)
+        {
+            DeathCanvas.gameObject.SetActive(enable);
+            EnableInputCanvas(!enable);
+            EnableTopUI(!enable);
+
+            if (enable) ShowAD();
         }
 
         private void TogglePauseMenu()

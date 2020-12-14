@@ -11,7 +11,7 @@ namespace BarnoGames.Runner2020
 {
     public class getResource : MonoBehaviour
     {
-        public GlobalJumpSettings[] gjS;
+        public MovementSettings[] gjS;
         void Start()
         {
 
@@ -26,7 +26,7 @@ namespace BarnoGames.Runner2020
         [ContextMenu("dsd")]
         public void dosomething()
         {
-            gjS = Resources.LoadAll<GlobalJumpSettings>("Test");
+            gjS = Resources.LoadAll<MovementSettings>("Test");
 
             foreach (var t in gjS)
             {

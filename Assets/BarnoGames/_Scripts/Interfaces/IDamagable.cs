@@ -6,6 +6,7 @@ namespace BarnoGames.Runner2020
     {
         void TakeHit(float damage, RaycastHit hit);
         void TakeDamage(float damage);
+        void InstantDie();
     }
 }
 

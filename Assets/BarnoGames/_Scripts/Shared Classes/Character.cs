@@ -6,7 +6,8 @@ namespace BarnoGames.Runner2020
     public abstract class Character : LivingEntity, IAnimations, ICharacter
     {
         internal IJump iJump { get; private set; }
-        public Rigidbody rb { get; protected set; }
+        public Rigidbody RB { get; protected set; }
+        public bool CanSwitchPlayers { get; protected set; }
 
         [SerializeField] private Animator AnimatorController;
 
@@ -22,7 +23,8 @@ namespace BarnoGames.Runner2020
         protected override void Awake()
         {
             base.Awake();
-            rb = GetComponent<Rigidbody>();
+
+            RB = GetComponentInChildren<Rigidbody>();
         }
 
         protected override void Start()
@@ -33,7 +35,7 @@ namespace BarnoGames.Runner2020
 
             string missingComponents = string.Empty;
 
-            if (rb == null) missingComponents += $"{rb.GetType().Name} \n ";
+            if (RB == null) missingComponents += $"{RB.GetType().Name} \n ";
             if (iJump == null) missingComponents += $"IJump \n";
 
             if (string.IsNullOrEmpty(missingComponents))
@@ -41,8 +43,6 @@ namespace BarnoGames.Runner2020
 
             Debug.Log($"** {gameObject.name} Components Missing :=> \n {missingComponents}**************** ");
         }
-
-        public bool IsGroundSmash { get; set; }
 
         protected abstract bool CheckIfGrounded();
         protected abstract void SlopPlayerAngleAdjustment(in bool hitGround, in Transform forwardPosition, in Transform middlePosition, in Transform backwardPosition);

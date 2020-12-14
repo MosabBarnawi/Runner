@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 000475148d9208e43a1e16f63a31c0e3, type: 3}
   m_Name: Default Shard Behavior Settings
   m_EditorClassIdentifier: 
-  SharedBoostSpeed: 20
+  SharedBoostForwardSpeed: 5
+  ShardBoostUpSpeed: 35
   HitAmount: 5
   Rotations:
   - IdelRotationAxis: {x: 1, y: 1, z: 0}

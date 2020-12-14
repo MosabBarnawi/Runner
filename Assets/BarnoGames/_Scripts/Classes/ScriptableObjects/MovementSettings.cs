@@ -4,16 +4,17 @@ using UnityEngine;
 
 namespace BarnoGames.Runner2020
 {
-    [CreateAssetMenu(fileName = "New Global Jump Settings", menuName = "Barno Utils/Global Settings/Global Jump Settings")]
-    public class GlobalJumpSettings : ScriptableObject
+    [CreateAssetMenu(fileName = "New Movement Settings", menuName = "Barno Utils/Movement/Movement Settings")]
+    public class MovementSettings : ScriptableObject
     {
+        [SerializeField] private float movementSpeed = 10f;
 
         [Header("Global Settings")]
         [SerializeField] private float defaultGravityScale = 0.8f;
         [Tooltip("When the Jump Button Is Held it Applies This Gravity Value")]
-        [SerializeField] private float jumpGravityScale = 0.4f;
+        [SerializeField] private float gravityJumpScale = 0.4f;
 
-        [SerializeField] private bool globalJumpHangEnabled = false;
+        [SerializeField] private bool jumpHangEnabled = false;
 
         [Header("Player Settings")]
         [SerializeField] private int maxNumberOfJumps = 2;
@@ -34,10 +35,11 @@ namespace BarnoGames.Runner2020
 
 
         #region Properties
+        public float MovementSpeed { get => movementSpeed; }
         public float DefaultGravityScale { get => defaultGravityScale; }
-        public float JumpGravityScale { get => jumpGravityScale; }
+        public float GravityJumpScale { get => gravityJumpScale; }
         public bool IsFloatUp { get => isFloatUp; }
-        public bool GlobalJumpHang { get => globalJumpHangEnabled; }
+        public bool JumpHangEnabled { get => jumpHangEnabled; }
         public bool IsDecreasePerJump { get => isDecreasePerJump; }
         public float HangTime { get => hangTime; }
         public float HangGravity { get => hangGravity; }
