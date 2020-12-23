@@ -1,5 +1,9 @@
 namespace BarnoGames.Runner2020
 {
-    public enum JumpInput { Empty, Jump, NotJump }
-
+    public enum JumpInput 
+    {
+        Empty,
+        Jump, 
+        NotJump
+    }
 }

@@ -24,8 +24,8 @@ namespace BarnoGames.Runner2020.ScreenInput
                         PlayerInputControls.JumpInput(JumpInput.NotJump);
                     break;
                 case InputControlType.Attack:
-                    if (PlayerInputControls.Player.CanAnimateCharacter)
-                        PlayerInputControls.AttackAction?.Invoke();
+                    if (PlayerInputControls.Player.CanControlCharacter)
+                        PlayerInputControls.MainAbilityAction?.Invoke();
                     break;
                 default:
                     break;

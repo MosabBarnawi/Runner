@@ -25,26 +25,26 @@ namespace BarnoGames.Runner2020
 
         void Start()
         {
-            if (character.IAmPlayer /*&& PlayerInputControls.MoveAction == null*/)
-            {
-                PlayerInputControls.MoveAction = SetVelocity;
-                //Debug.Log($"***Not Assigned . {PlayerInputControls.MoveAction.Method}");
-            }
+            //if (character.IAmPlayer /*&& PlayerInputControls.MoveAction == null*/)
+            //{
+            //    PlayerInputControls.MoveAction = SetVelocity;
+            //    //Debug.Log($"***Not Assigned . {PlayerInputControls.MoveAction.Method}");
+            //}
         }
 
-        private void OnDisable()
-        {
-            if (character.IAmPlayer) PlayerInputControls.MoveAction -= SetVelocity;
-        }
+        //private void OnDisable()
+        //{
+        //    if (character.IAmPlayer) PlayerInputControls.MoveAction -= SetVelocity;
+        //}
 
-        private void OnDestroy()
-        {
-            if (character.IAmPlayer) PlayerInputControls.MoveAction -= SetVelocity;
-        }
+        //private void OnDestroy()
+        //{
+        //    if (character.IAmPlayer) PlayerInputControls.MoveAction -= SetVelocity;
+        //}
 
         void FixedUpdate()
         {
-            if (canMove && character.CanAnimateCharacter)
+            if (canMove && character.CanControlCharacter)
             {
                 if (isConstantMovement)
                     MoveCharacter(movementDirection);
@@ -96,7 +96,8 @@ namespace BarnoGames.Runner2020
             character.RB.velocity = Vector3.zero;
             Debug.Log("STOP");
 
-            if (freezeInSpace) character.RB.isKinematic = true; //TODO:: FIX WARRNING
+            //if (freezeInSpace) character.RB.isKinematic = true; //TODO:: FIX WARRNING
+            character.RB.isKinematic = freezeInSpace; //TODO:: FIX WARRNING
         }
 
         public void EnableMovement()

@@ -1,37 +1,42 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 namespace BarnoGames.Runner2020
 {
+    [RequireComponent(typeof(RigidBodyMovement))]
+    [RequireComponent(typeof(RigidBodyJumping))]
     public abstract class Character : LivingEntity, IAnimations, ICharacter
     {
         internal IJump iJump { get; private set; }
+        internal IMove imove { get; private set; }
         public Rigidbody RB { get; protected set; }
-        public bool CanSwitchPlayers { get; protected set; }
+        //public bool CanSwitchPlayers { get; protected set; }
 
         [SerializeField] private Animator AnimatorController;
 
         public Animator Anim => AnimatorController;
 
         #region Player Specific 
-        public bool IAmPlayer { get; protected set; } = false;
+        //public bool IAmPlayer { get; protected set; } = false;
+
         protected bool CanControl { get; set; } = true;
         #endregion
 
-        public bool CanAnimateCharacter => !IsDead && CanControl;
+        public bool CanControlCharacter => !IsDead && CanControl; //TODO :: MAKE THIS CONTROLINH FROM ONE PLACE
 
         protected override void Awake()
         {
             base.Awake();
 
-            RB = GetComponentInChildren<Rigidbody>();
+            RB = GetComponent<Rigidbody>();
+            iJump = GetComponent<IJump>();
+            imove = GetComponent<IMove>();
         }
 
         protected override void Start()
         {
             base.Start();
-
-            iJump = GetComponent<IJump>();
 
             string missingComponents = string.Empty;
 

@@ -6,7 +6,7 @@ using System;
 
 namespace BarnoGames.Runner2020
 {
-    public class ShardBehavior : MonoBehaviour
+    public class ShardBehavior : MonoBehaviour, IAbility
     {
         private Rigidbody rb;
         private BoxCollider transformCollider;
@@ -42,8 +42,7 @@ namespace BarnoGames.Runner2020
 
         private Animator animator;
         private bool endLevel = false;
-
-
+        [SerializeField] private Player playerScript;
         #region Unity Callbacks
 
         private void Awake()
@@ -63,16 +62,17 @@ namespace BarnoGames.Runner2020
             animator = GetComponent<Animator>();
         }
 
-        private void OnEnable() => PlayerInputControls.AttackAction = Attack;
+        private void OnEnable() => PlayerInputControls.MainAbilityAction = MainAbility;
 
         void Start()
         {
-            if (PlayerInputControls.AttackAction == null)
+            if (PlayerInputControls.MainAbilityAction == null)
             {
-                PlayerInputControls.AttackAction = Attack;
-                Debug.Log($"***Not Assigned . {PlayerInputControls.AttackAction.Method}");
+                //PlayerInputControls.AttackAction = Attack;
+                Debug.Log($"***Not Assigned . {PlayerInputControls.MainAbilityAction.Method}");
             }
 
+            if (playerScript == null) Debug.Log("Player Script Not Assigned");
             rb.isKinematic = true;
 
             transformCollider.enabled = false;
@@ -89,7 +89,7 @@ namespace BarnoGames.Runner2020
             rb.interpolation = RigidbodyInterpolation.None;
         }
 
-        private void OnDestroy() => PlayerInputControls.AttackAction -= Attack;
+        private void OnDestroy() => PlayerInputControls.MainAbilityAction -= MainAbility;
 
         void Update()
         {
@@ -282,6 +282,8 @@ namespace BarnoGames.Runner2020
         {
             shardMotionType = ShardMotionType.Idel;
 
+            playerScript.CanSwitchPlayers = true;
+
             transform.parent = sharedParent;
 
             transform.position = sharedParent.position;
@@ -337,6 +339,8 @@ namespace BarnoGames.Runner2020
 
         private void ThrowShard()
         {
+            playerScript.CanSwitchPlayers = false;
+
             if (isEnmeyTrageted)
             {
                 shardMotionType = ShardMotionType.GoingToEnemy;
@@ -402,8 +406,8 @@ namespace BarnoGames.Runner2020
             ResetShard();
         }
 
-
-        private void Attack()
+        #region IAbility Interface
+        public void MainAbility()
         {
             if (shardMotionType == ShardMotionType.Idel)
                 ThrowShard();
@@ -411,6 +415,7 @@ namespace BarnoGames.Runner2020
             else if (shardMotionType != ShardMotionType.Returning)
                 RecallShard(false);
         }
+        #endregion
 
         private bool stopping;
         [SerializeField] private float stopTime = 0.2f;

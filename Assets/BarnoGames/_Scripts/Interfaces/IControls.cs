@@ -2,10 +2,10 @@
 {
     internal interface IControls
     {
-        void MovementDirectionInput();
+        //void MovementDirectionInput();
         void JumpInput(JumpInput isJump);
         void AttackInput();
-        void JumpAbilityInput();
+        void SwitchAbilityInput();
     }
 }
 

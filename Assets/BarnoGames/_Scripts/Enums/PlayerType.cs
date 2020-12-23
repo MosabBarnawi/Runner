@@ -1,1 +1,1 @@
-public enum PlayerType { MainPlayer, Secondary }
+public enum PlayerType {Empty ,MainPlayer, Secondary }

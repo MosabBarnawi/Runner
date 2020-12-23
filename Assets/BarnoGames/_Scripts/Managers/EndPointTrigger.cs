@@ -11,10 +11,14 @@ namespace BarnoGames.Runner2020
         {
             if (triggered) return;
 
-            if (other.GetComponent<PlayerTag>() != null)
+            if (other.GetComponent<IPlayerTAG>() != null)
             {
                 EndLevel();
                 triggered = true;
+            }
+            else
+            {
+                Debug.LogError(other.gameObject.name);
             }
         }
     }

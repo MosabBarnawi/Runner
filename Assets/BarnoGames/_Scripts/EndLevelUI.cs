@@ -39,13 +39,19 @@ namespace BarnoGames.Runner2020
 
             //if (isActive) StartCoroutine(SlowMotion());
             if (isActive) StartCoroutine(SlowMotion2());
-
-            //GameManager.SharedInstance.SetPostProcessingType(isActive);
         }
 
-        private void NextLevelClicked() => GameManager.SharedInstance.GoToNextLevel();
+        private void NextLevelClicked()
+        {
+            EnableScreen(false);
+            GameManager.SharedInstance.GoToNextLevel();
+        }
 
-        private void RestartLevelClick() => GameManager.SharedInstance.ResetLevel();
+        private void RestartLevelClick()
+        {
+            EnableScreen(false);
+            GameManager.SharedInstance.ResetLevelOnFinish();
+        }
 
         // TODO:: WHEN CAMERA STOPS MOVING SHOW BUTTONS AND STATS
         private IEnumerator SlowMotion2()

@@ -6,70 +6,72 @@ namespace BarnoGames.Runner2020
     [DisallowMultipleComponent]
     public class PlayerControls : MonoBehaviour, IControls
     {
-        [SerializeField] bool usingKeyboard = false;
+        //[SerializeField] bool usingKeyboard = false;
 
         #region Unity Calls
 
         private void Update()
         {
-            MovementDirectionInput();
-            JumpInput(Runner2020.JumpInput.Empty);
+            //MovementDirectionInput();
+            //JumpInput(Runner2020.JumpInput.Empty);
             AttackKeyBoardInput();
         }
 
         #endregion
 
         #region IControls Interfaces
-        public void MovementDirectionInput()
-        {
-            if (usingKeyboard)
-            {
-                float direction = Input.GetAxisRaw(CONTROLS.INPUT_HORIONTAL);
-                //PlayerInputControls.MoveAction(direction);
-                PlayerInputControls.MoveAction?.Invoke(direction);
+        //public void MovementDirectionInput()
+        //{
+        //    if (usingKeyboard)
+        //    {
+        //        //float direction = Input.GetAxisRaw(CONTROLS.INPUT_HORIONTAL);
+        //        ////PlayerInputControls.MoveAction(direction);
+        //        //PlayerInputControls.MoveAction?.Invoke(direction);
 
 
-                if (PlayerInputControls.MoveAction == null)
-                    Debug.Log("MOVE ANT");
-            }
-        }
+        //        if (PlayerInputControls.MoveAction == null)
+        //            Debug.Log("MOVE ANT");
+        //    }
+        //}
 
         public void JumpInput(JumpInput isJump)
         {
             if (isJump == Runner2020.JumpInput.Empty) return;
 
-            if (PlayerInputControls.Player.CanAnimateCharacter)
+            if (PlayerInputControls.Player.CanControlCharacter)
             {
-                if (usingKeyboard)
-                {
-                    bool jumpped = Input.GetKey(KeyCode.Space);
+                //if (usingKeyboard)
+                //{
+#if UNITY_EDITOR
+                bool jumpped = Input.GetKey(KeyCode.Space);
 
-                    isJump = jumpped ? Runner2020.JumpInput.Jump : Runner2020.JumpInput.NotJump;
-                }
+                isJump = jumpped ? Runner2020.JumpInput.Jump : Runner2020.JumpInput.NotJump;
+                //}
 
                 PlayerInputControls.Player.iJump.SetJump(isJump);
+#endif
             }
         }
 
-        public void JumpAbilityInput()
+        public void SwitchAbilityInput()
         {
-            if (PlayerInputControls.Player.CanAnimateCharacter)
+            if (PlayerInputControls.Player.CanControlCharacter)
             {
                 PlayerInputControls.SpecialAbility?.Invoke();
 
                 if (PlayerInputControls.SpecialAbility == null)
-                    Debug.Log("JUMP ANT");
+                    Debug.Log("Jump Action is Null");
             }
         }
 
         public void AttackInput()
         {
-            if (PlayerInputControls.Player.CanAnimateCharacter)
+            if (PlayerInputControls.Player.CanControlCharacter)
 
-                PlayerInputControls.AttackAction?.Invoke();
+                PlayerInputControls.MainAbilityAction?.Invoke();
 
-            if (PlayerInputControls.AttackAction == null)
-                Debug.Log("HIT ANT");
+            if (PlayerInputControls.MainAbilityAction == null)
+                Debug.Log("Attack Action is Null");
         }
         #endregion
 
@@ -77,8 +79,9 @@ namespace BarnoGames.Runner2020
 
         private void AttackKeyBoardInput()
         {
-            if (usingKeyboard)
-                if (Input.GetKeyDown(KeyCode.L)) AttackInput();
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.LeftShift)) AttackInput();
+#endif
         }
 
         #endregion

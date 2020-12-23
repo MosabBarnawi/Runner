@@ -17,12 +17,10 @@ namespace BarnoGames.Runner2020
         private float gravity;
 
         private JumpChecker jumpChecker;
-        private RollBoostChecker rollBoostChecker;
 
         private Character character;
         private bool isGrounded => character.IsGrounded;
         private bool isJumpping;
-        private IMove imove;
         #endregion
 
         private float _slopMultiPlier;
@@ -31,7 +29,6 @@ namespace BarnoGames.Runner2020
         private void Awake()
         {
             character = GetComponent<Character>();
-            imove = character.GetComponent<IMove>();
         }
 
         void Start() => JumpRefreshForMultipleJumps();
@@ -51,7 +48,7 @@ namespace BarnoGames.Runner2020
 
         private void Jump()
         {
-            if (movementSettings.JumpHangEnabled || !character.CanAnimateCharacter) return;
+            if (movementSettings.JumpHangEnabled || !character.CanControlCharacter) return;
 
             if (isGrounded)
             {
@@ -96,18 +93,11 @@ namespace BarnoGames.Runner2020
                     }
                 }
             }
-
-            SpeedUpMidRollLogic();
         }
 
         private void JumpRefreshForMultipleJumps()
         {
             _slopMultiPlier = character.IsOnSlope ? slopeJumpVelocityMultiplier : 1f;
-
-            rollBoostChecker.SpeedUpTimer = 0;
-            rollBoostChecker.isBoosted = false;
-            rollBoostChecker.StartTimer = false;
-            SetAllowBoost(false);
 
             jumpChecker.SkipJumpCheck = false;
 
@@ -118,7 +108,7 @@ namespace BarnoGames.Runner2020
 
         private void JumpWithHang() // TODO:: WHEN LANFING INFINIATE LOOPING WITH ROLLING
         {
-            if (!movementSettings.JumpHangEnabled || !character.CanAnimateCharacter) return;
+            if (!movementSettings.JumpHangEnabled || !character.CanControlCharacter) return;
 
             if (isGrounded)
             {
@@ -134,8 +124,6 @@ namespace BarnoGames.Runner2020
 
                 character.isHardLandAnimation(false);
             }
-
-            SpeedUpMidRollLogic();
 
             if (jumpChecker.JumpCounter < movementSettings.MaxNumberOfJumps)
             {
@@ -225,48 +213,6 @@ namespace BarnoGames.Runner2020
             }
         }
 
-        #endregion
-
-        private bool GetAllowBoost() => rollBoostChecker.CanBoost;
-        public void SetAllowBoost(bool value) => rollBoostChecker.CanBoost = value;
-
-        #region Boosting After Land
-        private void SpeedUpMidRollLogic()
-        {
-            if (!rollBoostChecker.isBoosted)
-            {
-                if (GetAllowBoost())
-                {
-                    if (!isJumpping)
-                    {
-                        rollBoostChecker.StartTimer = true;
-                        rollBoostChecker.isBoosted = true;
-                        rollBoostChecker.isBoosted = true;
-                    }
-                }
-            }
-
-            if (rollBoostChecker.StartTimer) AfterRollBoostTimer();
-        }
-
-        private void AfterRollBoostTimer()
-        {
-            if (rollBoostChecker.StartTimer)
-            {
-                rollBoostChecker.SpeedUpTimer += Time.deltaTime;
-
-                if (rollBoostChecker.SpeedUpTimer <= movementSettings.TimeToBoost)
-                {
-                    character.isSpeedBoostAnimation(true);
-                    //TODO: IMPLEMENT BOOST FUNCITANLITY
-                }
-                else
-                {
-                    character.isSpeedBoostAnimation(false);
-                    rollBoostChecker.StartTimer = false;
-                }
-            }
-        }
         #endregion
 
         private void AddGravityToVelocity() => character.RB.velocity = new Vector3(character.RB.velocity.x, character.RB.velocity.y - gravity, 0);

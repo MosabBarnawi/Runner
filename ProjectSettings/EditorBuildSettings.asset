@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/BarnoGames/Scenes/ApplicationLaunch.unity
     guid: bf0cda47d2a492347a1bbfcead029525
   - enabled: 1
-    path: Assets/BarnoGames/Scenes/Player.unity
+    path: Assets/BarnoGames/Prefabs/Player.unity
     guid: ed8ac51cc458b7d40823704d22696925
   - enabled: 1
     path: Assets/BarnoGames/Scenes/Test Level.unity

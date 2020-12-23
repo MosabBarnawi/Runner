@@ -1,13 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{9C012E88-F38D-7087-E262-4957876D0915}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarnoGames", "BarnoGames.csproj", "{D3656606-EBC6-DBFE-054C-8A91E8FF83F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.csproj", "{7067C804-EA7F-7790-7FB5-A675263DFA69}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditModeTests", "EditModeTests.csproj", "{63F92FC9-B650-95C1-42B2-F4FB97321B24}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{22A627AB-19B4-AE25-211E-6DB03027FE13}"
 EndProject
@@ -29,10 +27,6 @@ Global
 		{7067C804-EA7F-7790-7FB5-A675263DFA69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7067C804-EA7F-7790-7FB5-A675263DFA69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7067C804-EA7F-7790-7FB5-A675263DFA69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63F92FC9-B650-95C1-42B2-F4FB97321B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63F92FC9-B650-95C1-42B2-F4FB97321B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63F92FC9-B650-95C1-42B2-F4FB97321B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63F92FC9-B650-95C1-42B2-F4FB97321B24}.Release|Any CPU.Build.0 = Release|Any CPU
 		{22A627AB-19B4-AE25-211E-6DB03027FE13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{22A627AB-19B4-AE25-211E-6DB03027FE13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22A627AB-19B4-AE25-211E-6DB03027FE13}.Release|Any CPU.ActiveCfg = Release|Any CPU

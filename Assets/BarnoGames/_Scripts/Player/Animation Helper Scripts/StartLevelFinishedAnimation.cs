@@ -9,7 +9,8 @@ namespace BarnoGames.Runner2020
         
         public void StartLevel()
         {
-            PlayerInputControls.Player.LevelStarted();
+            PlayerInputControls.PlayerScript.StartLevel();
+            //Debug.LogWarning("This is Empty");
         }
     }
 }

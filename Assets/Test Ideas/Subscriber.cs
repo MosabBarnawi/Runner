@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using BarnoGames.Runner2020;
 
 namespace BarnoGames.Runner2020.Subscriber
 {
@@ -12,7 +13,7 @@ namespace BarnoGames.Runner2020.Subscriber
 
         void Start()
         {
-            GameManager.SharedInstance.OnCollectedItem += ReciveMessage; ;
+            GameManager.SharedInstance.OnCollectedItem += ReciveMessage;
         }
 
         #region Incase of Disable Of Destroy

@@ -7,10 +7,10 @@ namespace BarnoGames.Runner2020
 {
     public abstract class LivingEntity : MonoBehaviour, IDamagable
     {
-        protected Action OnDeath;
+        public Action OnDeath;
         protected Action OnAddHealth;
         protected Action OnTakeHit;
-        protected Action OnRespawn;
+        protected Action<Vector3> OnRespawn;
 
         [Space(10)]
         [SerializeField] private LivingEntityHealth entityHealth;
@@ -55,11 +55,18 @@ namespace BarnoGames.Runner2020
 
         public void InstantDie() => Die();
 
-        public void Respawn()
+        public void Respawn(Vector3 positionToSpawn)
+        {
+            Debug.Log($"{gameObject.name} IS ALIVE");
+            IsDead = false;
+            OnRespawn?.Invoke(positionToSpawn);
+        }
+
+        public void QUIC_FIX_IS_ALIVE()
         {
             IsDead = false;
-            OnRespawn?.Invoke();
         }
+
 
         #endregion
 
@@ -80,11 +87,10 @@ namespace BarnoGames.Runner2020
         {
             IsDead = true;
 
-            if (OnDeath != null)
-            {
-                OnDeath();
-            }
-            else Debug.LogAssertion("No OnDeath Function");
+            OnDeath?.Invoke();
+
+            if (OnDeath == null)
+                Debug.LogAssertion("No OnDeath Function");
         }
         #endregion
     }
