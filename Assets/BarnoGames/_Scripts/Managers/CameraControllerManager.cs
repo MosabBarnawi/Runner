@@ -26,10 +26,13 @@ namespace BarnoGames.Runner2020
         [SerializeField] private CinemachineVirtualCamera fallingCamera;
 
         #region Unity Calls
-
+        private void Awake()
+        {
+            GameManager.SharedInstance.RegisterGameState(EnableCameraManager, GameState.Booted);
+            gameObject.SetActive(false);
+        }
         void Start()
         {
-
             swipe = GetComponent<Swipe>();
             horizontalDolly = CameraH.GetCinemachineComponent<CinemachineTrackedDolly>();
             verticalDolly = CameraV.GetCinemachineComponent<CinemachineTrackedDolly>();
@@ -96,6 +99,7 @@ namespace BarnoGames.Runner2020
             }
         }
 
+        private void EnableCameraManager() => gameObject.SetActive(true);
 
         private void EnableSwipeControls() => isWinState = true;
 

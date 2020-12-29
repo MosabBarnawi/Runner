@@ -37,22 +37,13 @@ namespace BarnoGames.Runner2020
             if (playerScript == null) Debug.LogError($"Player Script Not Assigned {gameObject.name}");
 
             currentCollider = GetComponent<Collider>();
+
+            OnFirstSpawn();
         }
 
         private void OnEnable()
         {
             InitilizeControls();
-            PlayerInputControls.MainAbilityAction = MainAbility;
-            //GameManager.SharedInstance.OnWinStateAction = PlayerInWinState;
-            GameManager.SharedInstance.RegisterGameState(PlayerInWinState, GameState.WinState);
-
-
-            if (IsDead)
-            {
-                imove.EnableMovement();
-                QUIC_FIX_IS_ALIVE();
-                Debug.Log("Was Dead");
-            }
         }
 
         protected override void Start()
@@ -97,6 +88,21 @@ namespace BarnoGames.Runner2020
         private void InitilizeControls()
         {
             PlayerInputControls.Player = this;
+
+            PlayerInputControls.MainAbilityAction = MainAbility;
+            //GameManager.SharedInstance.OnWinStateAction = PlayerInWinState;
+            GameManager.SharedInstance.RegisterGameState(PlayerInWinState, GameState.WinState);
+
+            if (IsDead)
+            {
+                imove.EnableMovement();
+                QUIC_FIX_IS_ALIVE();
+                Debug.Log("Was Dead");
+            }
+        }
+        private void OnFirstSpawn()
+        {
+
         }
 
         protected override bool CheckIfGrounded()
@@ -326,6 +332,7 @@ namespace BarnoGames.Runner2020
         }
 
         protected override void SlopPlayerAngleAdjustment(in bool hitGround, in Transform forwardPosition, in Transform middlePosition, in Transform backwardPosition) => throw new System.NotImplementedException();
+        public override void PlaceInPosition(Vector3 position) => throw new NotImplementedException();
 
         #endregion
     }

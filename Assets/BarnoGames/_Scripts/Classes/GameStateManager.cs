@@ -1,9 +1,11 @@
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using BarnoGames.Utilities;
+using BarnoUtils;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using System;
 
 namespace BarnoGames.Runner2020
 {
@@ -13,14 +15,17 @@ namespace BarnoGames.Runner2020
 
         LoadingSavedData,
         Init,
+        Booted,
 
         LevelTransition,
+        LevelRestart,
         LevelLoading,
         LevelFinishedLoading,
         LevelReady,
 
         PlayerSpawning,
         PlayerRestarting,
+        PlayerReady,
         PlayerDeath,
 
         InGame,
@@ -31,22 +36,26 @@ namespace BarnoGames.Runner2020
 
     public abstract class GameStateManager : MonoBehaviour
     {
-        //private GameState CurrentGameState;
+        public GameState CurrentGameState { get; private set; }
 
-        private Action OnLoadSaveData;
-        private Action OnInitilization;
-        private Action OnLevelTransition;
-        private Action OnLevelLoading;
-        private Action OnLevelFinishedLoading;
-        private Action OnLevelReady;
-        private Action OnPlayerSpawning;
-        private Action OnPlayerRestarting;
-        private Action OnPlayerDeath;
-        private Action OnInGame;
-        private Action OnPaused;
-        private Action OnShowingAD;
-        private Action OnWinStateActions;
+        private Action LoadSaveDataActions;  // TODO:: REMOVE THIS
+        private Action InitilizationActions; // TODO:: REMOVE THIS
+        private Action BootedToGameAction;
+        private Action LevelTransitionActions;
+        private Action LevelRestartAction;
+        private Action LevelLoadingActions;
+        private Action LevelFinishedLoadingActions;
+        private Action LevelReadyActions;
+        private Action PlayerSpawningActions;
+        private Action PlayerReadyActions;
+        private Action PlayerRestartingActions;
+        private Action PlayerDeathActions;
+        private Action InGameActions;
+        private Action PausedActions;
+        private Action ShowingADActions;
+        private Action WinStateActions;
 
+        /// <param name="action">Register Action to a Gamestate.</param>
         public void RegisterGameState(Action action, GameState gameState)
         {
             switch (gameState)
@@ -54,43 +63,52 @@ namespace BarnoGames.Runner2020
                 case GameState.None:
                     break;
                 case GameState.LoadingSavedData:
-                    OnLoadSaveData += action;
+                    LoadSaveDataActions += action;
                     break;
                 case GameState.Init:
-                    OnInitilization += action;
+                    InitilizationActions += action;
+                    break;
+                case GameState.Booted:
+                    BootedToGameAction += action;
                     break;
                 case GameState.LevelTransition:
-                    OnLevelTransition += action;
+                    LevelTransitionActions += action;
+                    break;
+                case GameState.LevelRestart:
+                    LevelRestartAction += action;
                     break;
                 case GameState.LevelLoading:
-                    OnLevelLoading += action;
+                    LevelLoadingActions += action;
                     break;
                 case GameState.LevelFinishedLoading:
-                    OnLevelFinishedLoading += action;
+                    LevelFinishedLoadingActions += action;
                     break;
                 case GameState.LevelReady:
-                    OnLevelReady += action;
+                    LevelReadyActions += action;
                     break;
                 case GameState.PlayerSpawning:
-                    OnPlayerSpawning += action;
+                    PlayerSpawningActions += action;
+                    break;
+                case GameState.PlayerReady:
+                    PlayerReadyActions += action;
                     break;
                 case GameState.PlayerRestarting:
-                    OnPlayerRestarting += action;
+                    PlayerRestartingActions += action;
                     break;
                 case GameState.PlayerDeath:
-                    OnPlayerDeath += action;
+                    PlayerDeathActions += action;
                     break;
                 case GameState.InGame:
-                    OnInGame += action;
+                    InGameActions += action;
                     break;
                 case GameState.Paused:
-                    OnPaused += action;
+                    PausedActions += action;
                     break;
                 case GameState.ShowingAD:
-                    OnShowingAD += action;
+                    ShowingADActions += action;
                     break;
                 case GameState.WinState:
-                    OnWinStateActions += action;
+                    WinStateActions += action;
                     break;
                 default:
                     break;
@@ -100,19 +118,22 @@ namespace BarnoGames.Runner2020
         /// <param name="action">Removes Completly.</param>
         public void UnRegisterGameState(Action action)
         {
-            OnLoadSaveData -= action;
-            OnInitilization -= action;
-            OnLevelTransition -= action;
-            OnLevelLoading -= action;
-            OnLevelFinishedLoading -= action;
-            OnLevelReady -= action;
-            OnPlayerSpawning -= action;
-            OnPlayerRestarting -= action;
-            OnPlayerDeath -= action;
-            OnInGame -= action;
-            OnPaused -= action;
-            OnShowingAD -= action;
-            OnWinStateActions -= action;
+            LoadSaveDataActions -= action;
+            InitilizationActions -= action;
+            BootedToGameAction -= action;
+            LevelTransitionActions -= action;
+            LevelRestartAction -= action;
+            LevelLoadingActions -= action;
+            LevelFinishedLoadingActions -= action;
+            LevelReadyActions -= action;
+            PlayerSpawningActions -= action;
+            PlayerReadyActions -= action;
+            PlayerRestartingActions -= action;
+            PlayerDeathActions -= action;
+            InGameActions -= action;
+            PausedActions -= action;
+            ShowingADActions -= action;
+            WinStateActions -= action;
         }
 
         /// <param name="action">Removes From Selected Game State.</param>
@@ -123,103 +144,166 @@ namespace BarnoGames.Runner2020
                 case GameState.None:
                     break;
                 case GameState.LoadingSavedData:
-                    OnLoadSaveData -= action;
+                    LoadSaveDataActions -= action;
                     break;
                 case GameState.Init:
-                    OnInitilization -= action;
+                    InitilizationActions -= action;
+                    break;
+                case GameState.Booted:
+                    BootedToGameAction -= action;
                     break;
                 case GameState.LevelTransition:
-                    OnLevelTransition -= action;
+                    LevelTransitionActions -= action;
+                    break;
+                case GameState.LevelRestart:
+                    LevelRestartAction -= action;
                     break;
                 case GameState.LevelLoading:
-                    OnLevelLoading -= action;
+                    LevelLoadingActions -= action;
                     break;
                 case GameState.LevelFinishedLoading:
-                    OnLevelFinishedLoading -= action;
+                    LevelFinishedLoadingActions -= action;
                     break;
                 case GameState.LevelReady:
-                    OnLevelReady -= action;
+                    LevelReadyActions -= action;
                     break;
                 case GameState.PlayerSpawning:
-                    OnPlayerSpawning -= action;
+                    PlayerSpawningActions -= action;
+                    break;
+                case GameState.PlayerReady:
+                    PlayerReadyActions -= action;
                     break;
                 case GameState.PlayerRestarting:
-                    OnPlayerRestarting -= action;
+                    PlayerRestartingActions -= action;
                     break;
                 case GameState.PlayerDeath:
-                    OnPlayerDeath -= action;
-                    break; 
+                    PlayerDeathActions -= action;
+                    break;
                 case GameState.InGame:
-                    OnInGame -= action;
+                    InGameActions -= action;
                     break;
                 case GameState.Paused:
-                    OnPaused -= action;
+                    PausedActions -= action;
                     break;
                 case GameState.ShowingAD:
-                    OnShowingAD -= action;
+                    ShowingADActions -= action;
                     break;
                 case GameState.WinState:
-                    OnWinStateActions -= action;
+                    WinStateActions -= action;
                     break;
                 default:
                     break;
             }
         }
 
-        protected void GameSateChange(GameState gameState)
+        private void SetCurrentGameState(GameState newGameState)
         {
-            switch (gameState)
-            {
-                case GameState.None:
-                    break;
-                case GameState.LoadingSavedData:
-                    OnLoadSaveData.Invoke();
-                    break;
-                case GameState.Init:
-                    OnInitilization.Invoke();
-                    break;
-                case GameState.LevelTransition:
-                    OnLevelTransition.Invoke();
-                    break;
-                case GameState.LevelLoading:
-                    OnLevelLoading.Invoke();
-                    break;
-                case GameState.LevelFinishedLoading:
-                    OnLevelFinishedLoading.Invoke();
-                    break;
-                case GameState.LevelReady:
-                    OnLevelReady.Invoke();
-                    break;
-                case GameState.PlayerSpawning:
-                    OnPlayerSpawning.Invoke();
-                    break;
-                case GameState.PlayerRestarting:
-                    OnPlayerRestarting.Invoke();
-                    break;
-                case GameState.PlayerDeath:
-                    OnPlayerDeath.Invoke();
-                    break;
-                case GameState.InGame:
-                    OnInGame.Invoke();
-                    break;
-                case GameState.Paused:
-                    OnPaused.Invoke();
-                    break;
-                case GameState.ShowingAD:
-                    OnShowingAD.Invoke();
-                    break;
-                case GameState.WinState:
-                    OnWinStateActions.Invoke();
-                    break;
-                default:
-                    break;
-            }
+            CurrentGameState = newGameState;
+            BarnoDebug.Log("Current Game status", $"= {CurrentGameState}", BarnoColor.Green);
         }
 
-        public virtual void OnLoadedSaveData()
+        //private void GameSateChange(GameState gameState)
+        //{
+        //    switch (gameState)
+        //    {
+        //        case GameState.None:
+        //            break;
+        //        case GameState.LoadingSavedData:
+        //            LoadSaveDataActions.Invoke();
+        //            break;
+        //        case GameState.Init:
+        //            InitilizationActions.Invoke();
+        //            break;
+        //        case GameState.LevelTransition:
+        //            LevelTransitionActions.Invoke();
+        //            break;
+        //        case GameState.LevelRestart:
+        //            LevelRestartAction.Invoke();
+        //            break;
+        //        case GameState.LevelLoading:
+        //            LevelLoadingActions.Invoke();
+        //            break;
+        //        case GameState.LevelFinishedLoading:
+        //            LevelFinishedLoadingActions.Invoke();
+        //            break;
+        //        case GameState.LevelReady:
+        //            LevelReadyActions.Invoke();
+        //            break;
+        //        case GameState.PlayerSpawning:
+        //            PlayerSpawningActions.Invoke();
+        //            break;
+        //        case GameState.PlayerReady:
+        //            PlayerReadyActions.Invoke();
+        //            break;
+        //        case GameState.PlayerRestarting:
+        //            PlayerRestartingActions.Invoke();
+        //            break;
+        //        case GameState.PlayerDeath:
+        //            PlayerDeathActions.Invoke();
+        //            break;
+        //        case GameState.InGame:
+        //            InGameActions.Invoke();
+        //            break;
+        //        case GameState.Paused:
+        //            PausedActions.Invoke();
+        //            break;
+        //        case GameState.ShowingAD:
+        //            ShowingADActions.Invoke();
+        //            break;
+        //        case GameState.WinState:
+        //            WinStateActions.Invoke();
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
+
+        public virtual void OnLoadSaveData()
         {
-            Debug.Log("Heyyyyyyy");
+            SetCurrentGameState(GameState.LoadingSavedData);
+            LoadSaveDataActions?.Invoke();
+        }
+        public virtual void OnInitilization()
+        {
+            SetCurrentGameState(GameState.Init);
+            InitilizationActions?.Invoke();
         }
 
+        public virtual void OnBooted()
+        { 
+            SetCurrentGameState(GameState.Booted);
+            BootedToGameAction?.Invoke();
+        }
+
+        public virtual void OnLevelTransition() { }
+        public virtual void OnLevelRestart() { LevelRestartAction?.Invoke(); }
+        public virtual void OnLevelLoading() 
+        {
+            SetCurrentGameState(GameState.LevelLoading);
+            LevelLoadingActions?.Invoke(); 
+        }
+        public virtual void OnLevelFinishedLoading() { }
+        public virtual void OnLevelReady() 
+        {
+            SetCurrentGameState(GameState.LevelReady);
+            LevelReadyActions.Invoke(); 
+        }
+        public virtual void OnPlayerSpawning() { }
+        public virtual void OnPlayerReady() { PlayerReadyActions?.Invoke(); }
+        public virtual void OnPlayerRestarting() { PlayerRestartingActions?.Invoke(); }
+        public virtual void OnPlayerDeath() { PlayerDeathActions?.Invoke(); }
+
+        public virtual void OnInGame()
+        {
+            InGameActions?.Invoke();
+            SetCurrentGameState(GameState.InGame);
+        }
+        public virtual void OnPaused()
+        {
+            InGameActions?.Invoke();
+            SetCurrentGameState(GameState.Paused);
+        }
+        public virtual void OnShowingAD() { }
+        public virtual void OnWinState() { WinStateActions?.Invoke(); }
     }
 }

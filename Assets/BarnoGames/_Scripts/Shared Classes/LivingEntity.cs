@@ -62,6 +62,8 @@ namespace BarnoGames.Runner2020
             OnRespawn?.Invoke(positionToSpawn);
         }
 
+        public abstract void PlaceInPosition(Vector3 position);
+
         public void QUIC_FIX_IS_ALIVE()
         {
             IsDead = false;

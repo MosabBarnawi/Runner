@@ -6,7 +6,6 @@ namespace BarnoGames.Runner2020
 {
     public class StartLevelFinishedAnimation : MonoBehaviour
     {
-        
         public void StartLevel()
         {
             PlayerInputControls.PlayerScript.StartLevel();

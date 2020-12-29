@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace BarnoGames.Runner2020.Editor
 {
-    [InitializeOnLoad]
+    //[InitializeOnLoad]
     public static class SoundFXEnumGenerator
     {
         [MenuItem("BarnoTools/Generate Sounds Enums")]
-        [InitializeOnLoadMethod]
+        //[InitializeOnLoadMethod]
         public static void GenerateEnumsFrom()
         {
             List<string> stringToEnumList = new List<string>();

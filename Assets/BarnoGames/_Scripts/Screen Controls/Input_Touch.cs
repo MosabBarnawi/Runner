@@ -1,7 +1,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
 
-namespace BarnoGames.Runner2020.ScreenInput
+namespace BarnoGames.Runner2020
 {
     public class Input_Touch : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
     {

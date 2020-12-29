@@ -2,7 +2,7 @@ using BarnoGames.Runner2020;
 using System.Collections;
 using UnityEngine;
 
-namespace Assets.Test
+namespace BarnoGames.Test
 {
     public abstract class AbstractClassTest : MonoBehaviour
     {

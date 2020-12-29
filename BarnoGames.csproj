@@ -60,23 +60,24 @@
     <Compile Include="Assets\BarnoGames\_Scripts\Shard\ShardBehavior.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Shared Classes\Character.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\Player.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\DestroyMeTimer.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Utilities\DestroyMeTimer.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\JumpChecker.cs" />
-    <Compile Include="Assets\Test Ideas\Target.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\ILevelState.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\IAbility.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\TargetDetectionCalculations.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\LivingEntityHealth.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Utilities\MonoSingleton.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Managers\CameraControllerManager.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Swipe Controls\SwipeTwo.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\Animation Helper Scripts\StartLevelFinishedAnimation.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\ScriptableObjects\MovementSettings.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Screen Controls\PlayerInputControls.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\BallPlayer.cs" />
-    <Compile Include="Assets\Test Ideas\Box.cs" />
     <Compile Include="Assets\ConsoleCommands\Scripts\DeveloperConsole.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Managers\PostProcessingManager.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Enums\ShardMotionType.cs" />
     <Compile Include="Assets\ConsoleCommands\Scripts\DeveloperConsoleBehavior.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\Vibration.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Classes\Vibration.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\Tags\IPlayerTAG.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Shard\ShardClifBehavior.cs" />
     <Compile Include="Assets\ConsoleCommands\Scripts\IConsoleCommand.cs" />
@@ -86,19 +87,17 @@
     <Compile Include="Assets\BarnoGames\_Scripts\Managers\LevelLocationSpawnerManager.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Shared Classes\LookAt.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\Constants.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\Utils\FPSDisplay.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Utilities\FPSDisplay.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Enums\JumpInput.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Json\JsonSaveAndLoadScript.cs" />
-    <Compile Include="Assets\Test Ideas\Subscriber.cs" />
-    <Compile Include="Assets\Test Ideas\BoostScript.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\Shard_RepellAttributes.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Enums\InputControlType.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Json\StoredData.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\DoNotDestroyOnLoadScript.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Utilities\DoNotDestroyOnLoadScript.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Managers\EndPointTrigger.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Screen Controls\Input_Touch.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\CurvePoint.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\Utils\HUDFPS.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Utilities\HUDFPS.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\Tags\IClimableTAG.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\ReturningCalculations.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\RotationsContainer.cs" />
@@ -106,7 +105,7 @@
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\IAnimations.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Managers\GameManager.cs" />
     <Compile Include="Assets\ConsoleCommands\Scripts\ScriptableCommands.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\EndLevelUI.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Managers\EndLevelUI.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\IControls.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Enemy.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\IAttack.cs" />
@@ -114,38 +113,32 @@
     <Compile Include="Assets\BarnoGames\_Scripts\Player\RigidBodyJumping.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Managers\AdsManager.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Shared Classes\LivingEntity.cs" />
-    <Compile Include="Assets\Test Ideas\Combime.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\PlayerControls.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Classes\GameStateManager.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\Shard_ThrowAttributes.cs" />
-    <Compile Include="Assets\Test Ideas\World.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\IMove.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\ITargetable.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\IDestroyable.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\IDamagable.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\RigidBodyMovement.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\AttackControls.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Managers\GameBooter.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\MainPlayerScript.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Enviorment Interactions\Destroyable.cs" />
-    <Compile Include="Assets\Test Ideas\AbstractClassTest.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\Shard_ReturnAttributes.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\Shard_TargetDetection.cs" />
-    <Compile Include="Assets\Test Ideas\MousMove.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Managers\GameLauncher.cs" />
     <Compile Include="Assets\ConsoleCommands\Scripts\LogCommand.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Utilities\SceneReference.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Enviorment Interactions\Clollectable.cs" />
     <Compile Include="Assets\ConsoleCommands\Scripts\GiveCommad.cs" />
-    <Compile Include="Assets\Test Ideas\FasterCode.cs" />
-    <Compile Include="Assets\Test Ideas\DoTweenTest.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Interfaces\ICharacter.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Enums\PlayerType.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Swipe Controls\Swipe.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Shard\ClimableWall.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\Managers\LevelLoadingManager.cs" />
-    <Compile Include="Assets\BarnoGames\_Scripts\Classes\GameStateManager.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\BarnoGames\_Scripts\BarnoGames.asmdef" />
-     <None Include="Assets\Test Ideas\NewAssemblyReference.asmref" />
      <None Include="Assets\ConsoleCommands\ConsoleCommandRefrnece.asmref" />
     <Reference Include="UnityEngine">
       <HintPath>D:\Programms\2020.1.10f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
@@ -338,6 +331,9 @@
     </Reference>
     <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio Tools for Unity\16.0\Editor\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
+    </Reference>
+    <Reference Include="BarnoUtils">
+      <HintPath>Assets\BarnoGames\Plugins\BarnoUtils.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
       <HintPath>Assets\Plugins\Demigiant\DOTween\DOTween.dll</HintPath>
@@ -701,6 +697,9 @@
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Universal.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>

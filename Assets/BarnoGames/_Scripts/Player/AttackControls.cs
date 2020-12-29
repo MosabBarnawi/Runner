@@ -3,32 +3,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class AttackControls : MonoBehaviour/*, IAttack*/
+namespace BarnoGames.Runner2020
 {
-
-    private Transform transformToGoTo;
-    private Action callback;
-
-    public void Attack()
+    public class AttackControls : MonoBehaviour/*, IAttack*/
     {
-        Debug.Log("Attacked");
-        FlyToPosition();
-    }
 
-    public void GoToPosition(Transform _transform, Action callback)
-    {
-        transformToGoTo = _transform;
-        this.callback = callback;
-    }
-    
-    private void FlyToPosition()
-    {
-        if (transformToGoTo != null)
+        private Transform transformToGoTo;
+        private Action callback;
+
+        public void Attack()
         {
-            transform.position = transformToGoTo.position;
-            transformToGoTo = null;
-            callback();
+            Debug.Log("Attacked");
+            FlyToPosition();
+        }
+
+        public void GoToPosition(Transform _transform, Action callback)
+        {
+            transformToGoTo = _transform;
+            this.callback = callback;
+        }
+
+        private void FlyToPosition()
+        {
+            if (transformToGoTo != null)
+            {
+                transform.position = transformToGoTo.position;
+                transformToGoTo = null;
+                callback();
+            }
         }
     }
 }

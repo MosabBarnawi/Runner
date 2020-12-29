@@ -62,6 +62,7 @@ namespace BarnoGames.Runner2020
         public override void isJumpAnimation(in bool isJump) => throw new System.NotImplementedException();
         public override void isHardLandAnimation(in bool isHardLand) => throw new System.NotImplementedException();
         public override void isSpeedBoostAnimation(in bool isSpeedUp) => throw new System.NotImplementedException();
+        public override void PlaceInPosition(Vector3 position) => throw new System.NotImplementedException();
 
         #endregion
     }

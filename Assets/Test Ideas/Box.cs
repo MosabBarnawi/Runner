@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using System;
 
-namespace BarnoGames.Runner2020
+namespace BarnoGames.Test
 {
     public enum MeshType { Empty, Box, Sphear }
     public class Box

@@ -37,16 +37,17 @@ namespace BarnoGames.Runner2020
             if (playerScript == null) Debug.LogError($"Player Script Not Assigned {gameObject.name}");
 
             currentCollider = GetComponent<Collider>();
+
+            StartCoroutine(OnFirstSpawn());
         }
 
         private void OnEnable()
         {
             InitilizeControls();
 
-            if(GameManager.SharedInstance !=null)  //TODO:: IMPROVE THIS RACE CONDITION
-                                                   //GameManager.SharedInstance.OnWinStateAction = PlayerInWinState;
+            if (GameManager.SharedInstance != null)  //TODO:: IMPROVE THIS RACE CONDITION
+                                                     //GameManager.SharedInstance.OnWinStateAction = PlayerInWinState;
                 GameManager.SharedInstance.RegisterGameState(PlayerInWinState, GameState.WinState);
-
         }
 
         protected override void Start()
@@ -107,6 +108,22 @@ namespace BarnoGames.Runner2020
             //    if (PlayerInputControls.Player != this)
             //        Destroy(gameObject);
             //}
+        }
+
+        private IEnumerator OnFirstSpawn()
+        {
+            imove.StopMovement(false);
+            Anim.SetBool(ANIMATIONS_CONSTANTS.IS_PLAYER_FALLING, true);
+
+            yield return new WaitForSeconds(5f);
+            imove.StopMovement(true);
+            //PlayerIsFalling();
+        }
+
+        public override void PlaceInPosition(Vector3 position)
+        {
+            transform.position = position;
+            imove.StopMovement(true);
         }
 
         #region Animations
@@ -252,12 +269,17 @@ namespace BarnoGames.Runner2020
             //IF TOUCED GROUND =>
             //if (IsGrounded)
             //{
-                imove.EnableMovement();
+            imove.EnableMovement();
 
-                // DO FLAT LANFING SETTINGS THEN MOVE
+            // DO FLAT LANFING SETTINGS THEN MOVE
             //}
         }
 
+        //private void PlayerIsFalling()
+        //{
+        //    imove.StopMovement(true);
+        //    Anim.SetBool(ANIMATIONS_CONSTANTS.IS_PLAYER_FALLING, true);
+        //}
         public void PlayerIsFalling(Vector3 positionToSpawn, Action levelHasStartedCallback)
         {
             imove.StopMovement(true);
@@ -272,12 +294,12 @@ namespace BarnoGames.Runner2020
 
             //if (IsGrounded)
             //{
-                // DO FLAT LANFING SETTINGS THEN MOVE
-                //StartCoroutine(DelayStartMoving(levelHasStartedCallback));
+            // DO FLAT LANFING SETTINGS THEN MOVE
+            //StartCoroutine(DelayStartMoving(levelHasStartedCallback));
             //}
         }
 
-        private IEnumerator DelayStartMoving(Action levelHasStartedCallback)
+        private IEnumerator C_DelayStartMoving(Action levelHasStartedCallback)
         {
             yield return new WaitForSecondsRealtime(2f);
             EnableReciveInputControls(true);

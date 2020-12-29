@@ -1,12 +1,12 @@
-using BarnoGames.Runner2020.Calculations;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using System;
+using BarnoUtils;
 
 namespace BarnoGames.Runner2020
 {
-    public class ShardBehavior : MonoBehaviour, IAbility
+    public class ShardBehavior : MonoBehaviour, IAbility, ILevelState
     {
         private Rigidbody rb;
         private BoxCollider transformCollider;
@@ -80,7 +80,9 @@ namespace BarnoGames.Runner2020
 
             CliffGameObject.SetActive(false);
 
-            GameManager.SharedInstance.SlowDown += OnLevelEnd;
+            //GameManager.SharedInstance.SlowDown += OnLevelEnd;
+            GameManager.SharedInstance.RegisterGameState(OnLevelEnd, GameState.WinState);
+            GameManager.SharedInstance.RegisterGameState(OnLevelReady, GameState.LevelReady);
         }
 
         private void OnDisable()
@@ -254,15 +256,37 @@ namespace BarnoGames.Runner2020
             }
         }
 
-        private void OnLevelEnd(bool stop)
+        //private void OnLevelEnd(bool stop)
+        //{
+        //    endLevel = stop;
+
+        //    if (endLevel) Debug.Log("Swithing to Animation");
+        //    else Debug.Log("Swithing To Normal");
+
+        //    animator.enabled = endLevel;
+        //}
+
+        #region ILevel State
+        public void OnLevelEnd()
         {
-            endLevel = stop;
+            endLevel = true;
 
             if (endLevel) Debug.Log("Swithing to Animation");
             else Debug.Log("Swithing To Normal");
 
             animator.enabled = endLevel;
         }
+
+        public void OnLevelReady()
+        {
+            endLevel = false;
+
+            if (endLevel) BarnoDebug.Log(name,"Swithing to Animation", BarnoColor.RussionGreen);
+            else BarnoDebug.Log(name,"Swithing To Normal",BarnoColor.RussionGreen);
+
+            animator.enabled = endLevel;
+        }
+        #endregion
 
         private void StickToWall()
         {

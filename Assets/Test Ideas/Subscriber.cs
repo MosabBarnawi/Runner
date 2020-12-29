@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using BarnoGames.Runner2020;
 
-namespace BarnoGames.Runner2020.Subscriber
+namespace BarnoGames.Test
 {
     public class Subscriber : MonoBehaviour
     {

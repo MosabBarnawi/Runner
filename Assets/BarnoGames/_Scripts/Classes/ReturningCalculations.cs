@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace BarnoGames.Runner2020.Calculations
+namespace BarnoGames.Runner2020
 {
     [System.Serializable] // TODO:: REMOVE THIS
     public struct ReturningCalculations

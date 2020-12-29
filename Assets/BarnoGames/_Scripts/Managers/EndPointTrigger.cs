@@ -5,7 +5,7 @@ namespace BarnoGames.Runner2020
     public class EndPointTrigger : MonoBehaviour
     {
         private bool triggered = false;
-        private void EndLevel() => GameManager.SharedInstance.CompletedLevelState();
+        private void EndLevel() => GameManager.SharedInstance.OnWinState();
 
         private void OnTriggerEnter(Collider other)
         {

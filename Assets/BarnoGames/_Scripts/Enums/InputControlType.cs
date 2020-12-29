@@ -1,6 +1,10 @@
-internal enum InputControlType
+namespace BarnoGames.Runner2020
 {
-    Empty,
-    Jump,
-    Attack
+    internal enum InputControlType
+    {
+        Empty,
+        Jump,
+        Attack
+    }
 }
+

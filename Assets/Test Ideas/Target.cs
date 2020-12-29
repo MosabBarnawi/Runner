@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace BarnoGames.Runner2020.Target
+namespace BarnoGames.Runner2020
 {
     public class Target : MonoBehaviour
     {
