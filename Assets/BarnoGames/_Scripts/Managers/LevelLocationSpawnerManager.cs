@@ -9,15 +9,15 @@ namespace BarnoGames.Runner2020
 {
     public class LevelLocationSpawnerManager : MonoBehaviour // TODO:: CHANGE TO SCRIPTABLE OBJECT AND LET LEVEL MANAGER HANDLE THE SPAWN POSITIONS INSTEAD
     {
-        [SerializeField] private SceneReference currentScene;
-        [SerializeField] private SceneReference sceneToLoad;
+        [SerializeField] private SceneReference _currentScene;
+        [SerializeField] private SceneReference _sceneToLoad;
 
         [SerializeField] private Transform spawnPoint;
 
         //[SerializeField] private int levelIndex;
         public Transform SpawnPosition => spawnPoint;
-        public SceneReference CurrentScene => currentScene;
-        public SceneReference SceneToLoad => sceneToLoad;
+        public SceneReference CurrentScene => _currentScene;
+        public SceneReference SceneToLoad => _sceneToLoad;
 
         //public int LevelIndex => levelIndex;
 

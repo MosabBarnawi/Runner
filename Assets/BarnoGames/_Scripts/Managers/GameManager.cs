@@ -22,11 +22,13 @@ namespace BarnoGames.Runner2020
         public int TEXT_VALUE;
 
         //public Button ConsoleButton;
+        [SerializeField] private SceneReference fallBackScene;
 
         public LevelLocationSpawnerManager CurrentLevel;
+        [SerializeField] private Button RestartButtton;
 
         [Space(10)]
-        [Header("Top UI")]
+        [Header("Top UI")] //TODO SPERATE TO OTHER CLASSES
         [SerializeField] private GameObject TopUI;
         [SerializeField] private Button PasueButton;
         [SerializeField] private Text XText;
@@ -35,6 +37,8 @@ namespace BarnoGames.Runner2020
         [Space(10)]
         [Header("Pause Menu")]
         [SerializeField] private GameObject PauseMenu;
+        [SerializeField] private Button OptionsButton;
+        [SerializeField] private Button exitButton;
         private float timescale;
 
         //[Space(10)]
@@ -59,7 +63,7 @@ namespace BarnoGames.Runner2020
         [Space(10)]
         [Header("Death UI")]
         [SerializeField] private Canvas DeathCanvas;
-        [SerializeField] private Button RestartButton;
+        [SerializeField] private Button DeathRestartButton;
         [SerializeField] private Button PlaceHolderAdd;
         private int deathCounter;
         private int numberOfDeathsToShowAdd = 3;
@@ -69,7 +73,6 @@ namespace BarnoGames.Runner2020
 
         //public GameStateManager gameStateManager = new GameStateManager();
 
-        [SerializeField] private Button RestartButtton;
 
         [Space(10)]
         [Header("FX")]
@@ -102,18 +105,22 @@ namespace BarnoGames.Runner2020
 
             if (PasueButton != null) PasueButton.onClick.AddListener(() => EnablePauseMenu(!PauseMenu.activeSelf));
             //if (ConsoleButton != null) ConsoleButton.onClick.AddListener(ToggleConsoleScreen);
-            if (RestartButton != null) RestartButton.onClick.AddListener(OnPlayerRestarting);
+            if (DeathRestartButton != null) DeathRestartButton.onClick.AddListener(OnPlayerRestarting);
             if (PlaceHolderAdd != null) PlaceHolderAdd.onClick.AddListener(OnPlayerRestarting);
             if (RestartButtton != null) RestartButtton.onClick.AddListener(OnPlayerRestarting);
+            if (OptionsButton != null) OptionsButton.onClick.AddListener(() => OptionsManager.instance.EnableOptionsScreen(true));
+            if (exitButton != null) exitButton.onClick.AddListener(QuitGame);
         }
 
         private void OnDisable()
         {
             if (PasueButton != null) PasueButton.onClick.RemoveAllListeners();
             //if (ConsoleButton != null) ConsoleButton.onClick.RemoveAllListeners();
-            if (RestartButton != null) RestartButton.onClick.RemoveAllListeners();
+            if (DeathRestartButton != null) DeathRestartButton.onClick.RemoveAllListeners();
             if (PlaceHolderAdd != null) PlaceHolderAdd.onClick.RemoveAllListeners();
             if (RestartButtton != null) RestartButtton.onClick.RemoveAllListeners();
+            if (OptionsButton != null) OptionsButton.onClick.RemoveAllListeners();
+            if (exitButton != null) exitButton.onClick.RemoveAllListeners();
         }
 
         private void OnApplicationPause(bool pause)
@@ -132,6 +139,13 @@ namespace BarnoGames.Runner2020
             if (PauseMenu == null) Debug.LogError("Pause Menu Canvas Not Assigned");
 
             if (postProcessingManager == null) Debug.LogError("Post Processing Manager Not Assigned");
+
+            if (PasueButton == null) Debug.LogError("Pause Button not Assigned");
+            if (DeathRestartButton == null) Debug.LogError("Restart Button not Assigned");
+            if (PlaceHolderAdd == null) Debug.LogError("Place Holder Ad Button not Assigned");
+            if (RestartButtton == null) Debug.LogError("Restart Button Button not Assigned");
+            if (OptionsButton == null) Debug.LogError("Options Button not Assigned");
+            if (exitButton == null) Debug.LogError("Exit Button is Not Assigned");
         }
 
         #region Game State Manager Overrides
@@ -149,7 +163,7 @@ namespace BarnoGames.Runner2020
             base.OnInitilization();
 
             EnableTopUI(false);
-            EnablePauseMenu(false);
+            //EnablePauseMenu(false);
             EnableButtonInputCanvas(false); //TODO:: CHANGE TO ENUM INSTEAD OF BOOL MAYBE
 
             //postProcessingManager.SetPostProcessingType(PostProcesingType.Default);
@@ -225,6 +239,17 @@ namespace BarnoGames.Runner2020
 
             SceneManager.LoadScene(4, UnityEngine.SceneManagement.LoadSceneMode.Additive);
         }
+
+        public void QuitGame()
+        {
+            // save any game data here
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+         Application.Quit();
+#endif
+        }
+
         #endregion
         //public void LevelStart()
         //{
@@ -269,12 +294,12 @@ namespace BarnoGames.Runner2020
         private bool ShouldShowAd()
         {
             deathCounter++;
-            RestartButton.gameObject.SetActive(false);
+            DeathRestartButton.gameObject.SetActive(false);
             PlaceHolderAdd.gameObject.SetActive(false);
 
             if (deathCounter < numberOfDeathsToShowAdd)
             {
-                RestartButton.gameObject.SetActive(true);
+                DeathRestartButton.gameObject.SetActive(true);
                 return false;
             }
             else
@@ -285,6 +310,7 @@ namespace BarnoGames.Runner2020
                 return true;
             }
         }
+
 
         //private void RestartLevelOnDeath() // change to RestartLevel
         //{
@@ -438,28 +464,29 @@ namespace BarnoGames.Runner2020
         private void EnablePauseMenu(bool pause)
         {
             //TODO:: CHECK STATES
-            if (CurrentGameState != GameState.None) return;
+            // TODO :: HANDLE WHEN ON PAUSE WHILE IN LOGO SCENE
+            if (CurrentGameState != GameState.InGame) return;
 
-            PauseMenu.SetActive(pause);
+                PauseMenu.SetActive(pause);
 
-            if (pause)
-            {
-                // PAUSE GAME
-                timescale = Time.timeScale;
-                XText.text = "X";
-                Time.timeScale = TIME_CONSTANTS.PAUSE_TIME;
+                if (pause)
+                {
+                    // PAUSE GAME
+                    timescale = Time.timeScale;
+                    XText.text = "X";
+                    Time.timeScale = TIME_CONSTANTS.PAUSE_TIME;
 
-                OnPaused();
-            }
-            else
-            {
-                // RESUME GAME
-                XText.text = "II";
-                //Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
-                Time.timeScale = timescale; //TODO :: MAYBE KEEP SLOW MOTION FOR END OF LEVEL
+                    //OnPaused();
+                }
+                else
+                {
+                    // RESUME GAME
+                    XText.text = "II";
+                    //Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
+                    Time.timeScale = timescale; //TODO :: MAYBE KEEP SLOW MOTION FOR END OF LEVEL
 
-                OnInGame();
-            }
+                    //OnInGame();
+                }
         }
 
         private void SendMessageOut()

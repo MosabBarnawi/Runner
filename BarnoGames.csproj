@@ -70,6 +70,7 @@
     <Compile Include="Assets\BarnoGames\_Scripts\Managers\CameraControllerManager.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Swipe Controls\SwipeTwo.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\Animation Helper Scripts\StartLevelFinishedAnimation.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Editor\SoundFXEnumGenerator.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Classes\ScriptableObjects\MovementSettings.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Screen Controls\PlayerInputControls.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Player\BallPlayer.cs" />
@@ -136,6 +137,9 @@
     <Compile Include="Assets\BarnoGames\_Scripts\Enums\PlayerType.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Swipe Controls\Swipe.cs" />
     <Compile Include="Assets\BarnoGames\_Scripts\Shard\ClimableWall.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Editor\KeywordReplace.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Managers\OptionsManager.cs" />
+    <Compile Include="Assets\BarnoGames\_Scripts\Editor\SaveAndLoadEditor.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\BarnoGames\_Scripts\BarnoGames.asmdef" />

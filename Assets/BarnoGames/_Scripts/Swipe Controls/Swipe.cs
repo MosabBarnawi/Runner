@@ -9,28 +9,28 @@ namespace BarnoGames.Runner2020
         [SerializeField] private float daadZone = 100f;
         [SerializeField] private float doubleTapDelta = 0.5f;
 
-        private bool tap;
-        private bool hold;
-        private bool doubleTap;
-        private bool swipeLeft;
-        private bool swipeRight;
-        private bool swipeUp;
-        private bool swipeDown;
+        private bool _tap;
+        private bool _hold;
+        private bool _doubleTap;
+        private bool _swipeLeft;
+        private bool _swipeRight;
+        private bool _swipeUp;
+        private bool _swipeDown;
 
         private float lastTap;
         private float sqrDeadZone;
         private Vector2 startTouch;
-        private Vector2 swipeDelta;
+        private Vector2 _swipeDelta;
 
         #region Properties
-        public Vector2 SwipeDelta => swipeDelta;
-        public bool Tap => tap;
-        public bool DoubleTap => doubleTap;
-        public bool Hold => hold;
-        public bool SwipeLeft => swipeLeft;
-        public bool SwipeRight => swipeRight;
-        public bool SwipeUp => swipeUp;
-        public bool SwipeDown => swipeDown;
+        public Vector2 SwipeDelta => _swipeDelta;
+        public bool Tap => _tap;
+        public bool DoubleTap => _doubleTap;
+        public bool Hold => _hold;
+        public bool SwipeLeft => _swipeLeft;
+        public bool SwipeRight => _swipeRight;
+        public bool SwipeUp => _swipeUp;
+        public bool SwipeDown => _swipeDown;
         #endregion
 
         #region Unity Callbacks
@@ -42,7 +42,7 @@ namespace BarnoGames.Runner2020
 
         private void Update()
         {
-            tap = doubleTap = swipeLeft = swipeRight = swipeUp = swipeDown = false;
+            _tap = _doubleTap = _swipeLeft = _swipeRight = _swipeUp = _swipeDown = false;
 
 #if UNITY_EDITOR
             UpdateStandAlone();
@@ -58,46 +58,46 @@ namespace BarnoGames.Runner2020
         {
             if (Input.GetMouseButtonDown(0))
             {
-                tap = true;
-                hold = true;
+                _tap = true;
+                _hold = true;
                 startTouch = Input.mousePosition;
-                doubleTap = Time.time - lastTap < doubleTapDelta;
+                _doubleTap = Time.time - lastTap < doubleTapDelta;
 
-                if (doubleTap) Debug.Log("DoubleTap");
+                if (_doubleTap) Debug.Log("DoubleTap");
 
                 lastTap = Time.time;
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                hold = false;
-                startTouch = swipeDelta = Vector2.zero;
+                _hold = false;
+                startTouch = _swipeDelta = Vector2.zero;
             }
 
             //REST DISTANCE, GET THE NEW SWIPEDELTA
-            swipeDelta = Vector2.zero;
+            _swipeDelta = Vector2.zero;
 
             if (startTouch != Vector2.zero && Input.GetMouseButton(0))
-                swipeDelta = (Vector2)Input.mousePosition - startTouch;
+                _swipeDelta = (Vector2)Input.mousePosition - startTouch;
 
-            if (swipeDelta.sqrMagnitude > sqrDeadZone)
+            if (_swipeDelta.sqrMagnitude > sqrDeadZone)
             {
-                float x = swipeDelta.x;
-                float y = swipeDelta.y;
+                float x = _swipeDelta.x;
+                float y = _swipeDelta.y;
 
                 if (Mathf.Abs(x) > Mathf.Abs(y))
                 {
                     //LEFT OR RIGHT
-                    if (x < 0) swipeLeft = true;
-                    else swipeRight = true;
+                    if (x < 0) _swipeLeft = true;
+                    else _swipeRight = true;
                 }
                 else
                 {
                     // UP OR DOWN
-                    if (y < 0) swipeDown = true;
-                    else swipeUp = true;
+                    if (y < 0) _swipeDown = true;
+                    else _swipeUp = true;
                 }
 
-                startTouch = swipeDelta = Vector2.zero;
+                startTouch = _swipeDelta = Vector2.zero;
             }
         }
 
@@ -108,45 +108,45 @@ namespace BarnoGames.Runner2020
             {
                 if (Input.touches[0].phase == TouchPhase.Began)
                 {
-                    tap = true;
-                    hold = true;
+                    _tap = true;
+                    _hold = true;
                     startTouch = Input.mousePosition;
                     //startTouch = Input.touches[0].position;
-                    doubleTap = Time.time - lastTap < doubleTapDelta;
+                    _doubleTap = Time.time - lastTap < doubleTapDelta;
                     lastTap = Time.time;
                 }
                 else if (Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
                 {
-                    hold = false;
-                    startTouch = swipeDelta = Vector2.zero;
+                    _hold = false;
+                    startTouch = _swipeDelta = Vector2.zero;
                 }
             }
 
             // RESET DISTANCE, CALCULATE NEW ONE
-            swipeDelta = Vector2.zero;
+            _swipeDelta = Vector2.zero;
 
             if (startTouch != Vector2.zero && Input.touches.Length != 0)
-                swipeDelta = Input.touches[0].position - startTouch;
+                _swipeDelta = Input.touches[0].position - startTouch;
 
-            if (swipeDelta.sqrMagnitude > sqrDeadZone)
+            if (_swipeDelta.sqrMagnitude > sqrDeadZone)
             {
-                float x = swipeDelta.x;
-                float y = swipeDelta.y;
+                float x = _swipeDelta.x;
+                float y = _swipeDelta.y;
 
                 if (Mathf.Abs(x) > Mathf.Abs(y))
                 {
                     //LEFT OR RIGHT
-                    if (x < 0) swipeLeft = true;
-                    else swipeRight = true;
+                    if (x < 0) _swipeLeft = true;
+                    else _swipeRight = true;
                 }
                 else
                 {
                     // UP OR DOWN
-                    if (y < 0) swipeDown = true;
-                    else swipeUp = true;
+                    if (y < 0) _swipeDown = true;
+                    else _swipeUp = true;
                 }
 
-                startTouch = swipeDelta = Vector2.zero;
+                startTouch = _swipeDelta = Vector2.zero;
             }
         }
     }

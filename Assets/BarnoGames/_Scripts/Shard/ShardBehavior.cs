@@ -18,8 +18,8 @@ namespace BarnoGames.Runner2020
         //[SerializeField] private bool USE_NON_ALOC = false;
         [Header("States")]
         [SerializeField] private bool isEnmeyTrageted = false;
-        [SerializeField] private ShardMotionType shardMotionType;
-        public ShardMotionType ShardMotionType => shardMotionType;
+        [SerializeField] private ShardMotionType _shardMotionType;
+        public ShardMotionType ShardMotionType => _shardMotionType;
 
         [SerializeField] private ShardAttributesScriptable shardSpecification;
 
@@ -103,9 +103,9 @@ namespace BarnoGames.Runner2020
         {
             if (collision.transform.GetComponent<IPlayerTAG>() != null) return;
 
-            if (shardMotionType == ShardMotionType.GoingToEnemy || shardMotionType == ShardMotionType.inMotion)
+            if (_shardMotionType == ShardMotionType.GoingToEnemy || _shardMotionType == ShardMotionType.inMotion)
             {
-                if (shardMotionType == ShardMotionType.inMotion) // TODO:: FOR REPELLING STATES
+                if (_shardMotionType == ShardMotionType.inMotion) // TODO:: FOR REPELLING STATES
                 {
                     if (collision.transform.GetComponent<IClimableTAG>() != null)
                     {
@@ -114,7 +114,7 @@ namespace BarnoGames.Runner2020
                         IClimableTAG cliffHeightScript = collision.transform.gameObject.GetComponent<IClimableTAG>();
 
                         Vector3 exitPoint = new Vector3(cliffHeightScript.ExitPointTransform.position.x, cliffHeightScript.ExitPointTransform.position.y, 0);
-                        shardClifBehavior.exitPosition = exitPoint;
+                        shardClifBehavior.ExitPosition = exitPoint;
 
                         StickToWall();
                     }
@@ -177,9 +177,9 @@ namespace BarnoGames.Runner2020
         {
             if (endLevel) return;
 
-            if (shardMotionType == ShardMotionType.Stuck) return;
+            if (_shardMotionType == ShardMotionType.Stuck) return;
 
-            if (shardMotionType == ShardMotionType.GoingToEnemy)
+            if (_shardMotionType == ShardMotionType.GoingToEnemy)
             {
                 // 0.1 for error
                 if (targetDetectionCalculations.TravelToTargetTime <= 2f)
@@ -194,7 +194,7 @@ namespace BarnoGames.Runner2020
                     //shardMotionType = ShardMotionType.Returning;
                 }
             }
-            else if (shardMotionType == ShardMotionType.Repelling)
+            else if (_shardMotionType == ShardMotionType.Repelling)
             {
                 transformCollider.enabled = false;
 
@@ -217,14 +217,14 @@ namespace BarnoGames.Runner2020
                     rb.AddForce(new Vector3(rb.velocity.x, -shardSpecification.RepellAttributes.FallSpeedAfterRepellSpeed, rb.velocity.z + 0.5f)
                         , ForceMode.Impulse);
 
-                    shardMotionType = ShardMotionType.Falling;
+                    _shardMotionType = ShardMotionType.Falling;
                 }
             }
-            else if (shardMotionType == ShardMotionType.inMotion)
+            else if (_shardMotionType == ShardMotionType.inMotion)
             {
                 transform.RotateAround(transform.position, shardSpecification.Rotations[0].MotionRotationAxis, shardSpecification.ThrowAttributes.Standard_RotationSpeed);
             }
-            else if (shardMotionType == ShardMotionType.Returning)
+            else if (_shardMotionType == ShardMotionType.Returning)
             {
                 if (returningCalculations.ReturningTime < 1f)
                 {
@@ -242,13 +242,13 @@ namespace BarnoGames.Runner2020
                 }
                 else ResetShard();
             }
-            else if (shardMotionType == ShardMotionType.Falling)
+            else if (_shardMotionType == ShardMotionType.Falling)
             {
 
             }
             else
             {
-                if (shardMotionType != ShardMotionType.Stuck)
+                if (_shardMotionType != ShardMotionType.Stuck)
                 {
                     transform.RotateAround(transform.position, shardSpecification.Rotations[0].IdelRotationAxis, shardSpecification.ThrowAttributes.Standard_RotationSpeed);
                     //transform.Rotate(rotations[0].IdelRotationAxis.x, rotations[0].IdelRotationAxis.y, rotations[0].IdelRotationAxis.z, Space.World);
@@ -290,7 +290,7 @@ namespace BarnoGames.Runner2020
 
         private void StickToWall()
         {
-            shardMotionType = ShardMotionType.Stuck;
+            _shardMotionType = ShardMotionType.Stuck;
 
             rb.isKinematic = true;
             transformCollider.enabled = false;
@@ -304,7 +304,7 @@ namespace BarnoGames.Runner2020
 
         private void ResetShard()
         {
-            shardMotionType = ShardMotionType.Idel;
+            _shardMotionType = ShardMotionType.Idel;
 
             playerScript.CanSwitchPlayers = true;
 
@@ -320,7 +320,7 @@ namespace BarnoGames.Runner2020
 
         private void DetectEnemies() //TODO :: ADD FREQUENCY TO UPDATE MAYBE
         {
-            if (shardMotionType != ShardMotionType.Idel) return;
+            if (_shardMotionType != ShardMotionType.Idel) return;
 
             targetDetectionCalculations.Origin = transform.position;
             targetDetectionCalculations.Direction = Vector3.right;
@@ -358,7 +358,7 @@ namespace BarnoGames.Runner2020
         {
             Debug.Log("Repelling");
             rb.AddForce(Vector3.up * shardSpecification.RepellAttributes.RepellSpeed, ForceMode.Impulse);
-            shardMotionType = ShardMotionType.Repelling;
+            _shardMotionType = ShardMotionType.Repelling;
         }
 
         private void ThrowShard()
@@ -367,7 +367,7 @@ namespace BarnoGames.Runner2020
 
             if (isEnmeyTrageted)
             {
-                shardMotionType = ShardMotionType.GoingToEnemy;
+                _shardMotionType = ShardMotionType.GoingToEnemy;
 
                 returningCalculations.CurrentPosition = transform.position;
                 float distance = Vector3.Distance(transform.position, targetDetectionCalculations.TargetPositon);
@@ -384,7 +384,7 @@ namespace BarnoGames.Runner2020
             }
             else
             {
-                shardMotionType = ShardMotionType.inMotion;
+                _shardMotionType = ShardMotionType.inMotion;
 
                 transform.parent = null;
                 transformCollider.enabled = true;
@@ -410,7 +410,7 @@ namespace BarnoGames.Runner2020
             returningCalculations.CurrentPosition = transform.position;
             transformCollider.enabled = false;
 
-            shardMotionType = ShardMotionType.Returning;
+            _shardMotionType = ShardMotionType.Returning;
 
             rb.isKinematic = true;
 
@@ -433,10 +433,10 @@ namespace BarnoGames.Runner2020
         #region IAbility Interface
         public void MainAbility()
         {
-            if (shardMotionType == ShardMotionType.Idel)
+            if (_shardMotionType == ShardMotionType.Idel)
                 ThrowShard();
 
-            else if (shardMotionType != ShardMotionType.Returning)
+            else if (_shardMotionType != ShardMotionType.Returning)
                 RecallShard(false);
         }
         #endregion

@@ -326,7 +326,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 317e6f2fa2456e249ac9a3a45cdbf3fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  exitPointTransform: {fileID: 8064193166774152910}
+  _exitPointTransform: {fileID: 8064193166774152910}
 --- !u!1 &4486527866281692711
 GameObject:
   m_ObjectHideFlags: 0

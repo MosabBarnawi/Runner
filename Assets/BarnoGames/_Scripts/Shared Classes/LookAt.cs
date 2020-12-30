@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LookAt : MonoBehaviour
 {
+    //TODO:: REMOVE THIS COMPLETLY
+
     //public float LookRotationSpeed;
     //private LivingEntity targetLivingEntity;
     //private bool canLookAt = false;

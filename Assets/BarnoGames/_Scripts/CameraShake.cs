@@ -14,8 +14,8 @@ namespace BarnoGames.Runner2020
         private float shakeTimer;
         private CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChannelPerlin;
 
-        [SerializeField] private float ShakeIntenisity = 3f;
-        [SerializeField] private float ShakeTime = 0.1f;
+        [SerializeField] private float shakeIntenisity = 3f;
+        [SerializeField] private float shakeTime = 0.1f;
 
         void Awake()
         {
@@ -36,7 +36,7 @@ namespace BarnoGames.Runner2020
 
         public void Shake()
         {
-            ShakeCamera(ShakeIntenisity, ShakeTime);
+            ShakeCamera(shakeIntenisity, shakeTime);
         }
         private void ShakeCamera(float intensity, float time)
         {

@@ -41,13 +41,19 @@ namespace BarnoGames.Runner2020
         [SerializeField] private float startLogoDropAfterSeconds = 3f;
         [SerializeField] private Vector3 logoOutOfViewPostion = new Vector3(0, -50, 0);
 
+        [Space(10)]
+        [Header("Main Menu Options")]
         [SerializeField] private Button startButton;
+        [SerializeField] private Button optionsButton; //TODO:: MOVE OUT TO MAIN MENU
+        [SerializeField] private GameObject buttonsPanel;
+        [SerializeField] private Button exitButton;
 
         //public MinFloatParameter DOFValue;
 
         private Transform logoTranform;
         private DepthOfField dofComponent;
 
+        public bool isFirstLaunch { get; set; }
 
         #region Unity Calls
         void Start()
@@ -61,17 +67,24 @@ namespace BarnoGames.Runner2020
             logoTranform = LogoImage.GetComponent<Transform>();
             StartCoroutine(C_LogoAnimation());
 
-            if (startButton != null)
-            {
-                startButton.gameObject.SetActive(false);
-                startButton.onClick.AddListener(StartGame);
-            }
+            if (startButton != null) startButton.onClick.AddListener(StartGame);
+            else Debug.LogError("start Button not Assigned");
+
+            if (optionsButton != null) optionsButton.onClick.AddListener(() => OptionsManager.instance.EnableOptionsScreen(true));
+            else Debug.LogError("Options Button not Assigned");
+
+            if (buttonsPanel == null) Debug.LogError("Buttons Panel Not Assigned");
+
+            if (exitButton != null) exitButton.onClick.AddListener(() => { GameManager.SharedInstance.QuitGame(); });
+            else Debug.LogError("Exit Button Not Assigned");
         }
 
         private void OnDestroy()
         {
             GameManager.SharedInstance.UnRegisterGameState(AnimateGameInitilizedMethod);
             startButton.onClick.RemoveAllListeners();
+            optionsButton.onClick.RemoveAllListeners();
+            exitButton.onClick.RemoveAllListeners();
         }
         #endregion
 
@@ -84,7 +97,6 @@ namespace BarnoGames.Runner2020
             Sequence seqFocus = DOTween.Sequence();
 
             seqFocus.Join(DOTween.To(() => dofComponent.focusDistance.value, x => dofComponent.focusDistance.value = x, 10, FocusSpeed));
-
 
             seq
                 .Append(logoTranform.DOScale(1, GrowDurarion))
@@ -106,16 +118,36 @@ namespace BarnoGames.Runner2020
 
             //    GameManager.SharedInstance.OnBooted();
             //};
-
             yield return new WaitForSeconds(startLogoDropAfterSeconds);
+
             logoTranform.DOMove(logoOutOfViewPostion, dropSpeed);
-            startButton.gameObject.SetActive(true);
+
+            Transform buttonsTransfrom = buttonsPanel.GetComponent<Transform>();
+            buttonsTransfrom.DOScale(1, GrowDurarion);
+
+            EnableButtons(true, true);
         }
+
+        private void EnableButtons(bool isActive, bool isInteractable)
+        {
+            buttonsPanel.gameObject.SetActive(isActive);
+
+            startButton.interactable = isInteractable;
+            startButton.enabled = isInteractable;
+
+            optionsButton.interactable = isInteractable;
+            optionsButton.enabled = isInteractable;
+
+            exitButton.interactable = isInteractable;
+            exitButton.enabled = isInteractable;
+        }
+
 
         private void StartGame()
         {
-            startButton.interactable = false;
-            startButton.enabled = false;
+            EnableButtons(true, false);
+            //startButton.interactable = false;
+            //startButton.enabled = false;
 
             GameManager.SharedInstance.OnLevelLoading();
 

@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace BarnoGames.Runner2020.Editor
 {
+#if UNITY_EDITOR
     //[InitializeOnLoad]
     public static class SoundFXEnumGenerator
     {
@@ -93,4 +94,5 @@ namespace BarnoGames.Runner2020.Editor
             return String.Empty;
         }
     }
+#endif
 }

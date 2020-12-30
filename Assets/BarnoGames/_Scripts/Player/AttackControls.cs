@@ -5,9 +5,8 @@ using UnityEngine;
 
 namespace BarnoGames.Runner2020
 {
-    public class AttackControls : MonoBehaviour/*, IAttack*/
+    public class AttackControls : MonoBehaviour
     {
-
         private Transform transformToGoTo;
         private Action callback;
 

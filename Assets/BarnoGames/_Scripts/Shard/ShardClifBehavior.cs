@@ -6,7 +6,7 @@ namespace BarnoGames.Runner2020
 {
     public class ShardClifBehavior : MonoBehaviour
     {
-        public Vector3 exitPosition { get; set; }
+        public Vector3 ExitPosition { get; set; }
         [SerializeField] MainPlayerScript mainPlayer;
 
         private BoxCollider boxCollider;
@@ -24,7 +24,7 @@ namespace BarnoGames.Runner2020
         {
             if (other.GetComponent<MainPlayerScript>() != null)
             {
-                mainPlayer.TeleportPlayer(exitPosition);
+                mainPlayer.TeleportPlayer(ExitPosition);
                 Instantiate(GameManager.SharedInstance.TeleportFX, other.transform.position, GameManager.SharedInstance.TeleportFX.transform.rotation);
             }
         }

@@ -9,6 +9,7 @@ namespace BarnoGames.Utilities
     {
         public GameSpecifications gameSpecifications;
         public GameManagerSettings gameManagerSettings;
+        public GeneralSettings generalSettings;
 
         public StoredData()
         {
@@ -19,7 +20,13 @@ namespace BarnoGames.Utilities
 
             gameManagerSettings = new GameManagerSettings()
             {
-                VALUE_TEST = 50
+                //VALUE_TEST = 50
+            };
+
+            generalSettings = new GeneralSettings()
+            {
+                AutoGoIn = true,
+                isFirstLaunch = true,
             };
         }
 
@@ -32,7 +39,14 @@ namespace BarnoGames.Utilities
         [System.Serializable]
         public struct GameManagerSettings
         {
-            public int VALUE_TEST;
+            //public int VALUE_TEST;
+        }
+
+        [System.Serializable]
+        public struct GeneralSettings
+        {
+            public bool AutoGoIn;
+            public bool isFirstLaunch; // TODO:: FOR LATER ON TO GO STARIGHT TO LEVEL TRANSITION IF AUTO GOING IN IS ENABLED
         }
     }
 }

@@ -57,8 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\DecalSystem\Plugins\DecalSystem\Editor\Helpers\GUIUtils.cs" />
-    <Compile Include="Assets\BarnoGames\Editor\SoundFXEnumGenerator.cs" />
-    <Compile Include="Assets\BarnoGames\Editor\KeywordReplace.cs" />
     <Compile Include="Assets\DecalSystem\Plugins\DecalSystem\Editor\DecalEditor.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using BarnoGames.Runner2020;
 using System.Collections;
 using UnityEngine;
+using UnityEditor;
 using System.Text;
 using System.IO;
 using System;
 
 namespace BarnoGames.Utilities
 {
-    public class JsonSaveAndLoadScript : MonoBehaviour
+    public enum SettingsMap { AutoGoIn, FirstLaunch }
+
+    public class JsonSaveAndLoadScript : MonoSingleton<JsonSaveAndLoadScript>
     {
         private static JsonSaveAndLoadScript SharedInstance;
         private const string FILENAME = "UserDataRunner.json";
@@ -32,7 +35,6 @@ namespace BarnoGames.Utilities
             }
         }
 
-
         private bool HasLoaded
         {
             set
@@ -45,20 +47,23 @@ namespace BarnoGames.Utilities
         }
 
         #region Unity Callbacks
-
-        private void Awake()
+        public override void Init()
         {
-            if (SharedInstance == null)
-            {
-                SharedInstance = this;
-
-                _path = Path.Combine(Application.persistentDataPath, FILENAME);
-            }
-            else if (SharedInstance != this)
-            {
-                Destroy(gameObject);
-            }
+            base.Init();
+            _path = Path.Combine(Application.persistentDataPath, FILENAME);
         }
+        //private void Awake()
+        //{
+        //    if (SharedInstance == null)
+        //    {
+        //        SharedInstance = this;
+        //        _path = Path.Combine(Application.persistentDataPath, FILENAME);
+        //    }
+        //    else if (SharedInstance != this)
+        //    {
+        //        Destroy(gameObject);
+        //    }
+        //}
 
         private void Start()
         {
@@ -125,8 +130,8 @@ namespace BarnoGames.Utilities
 
                 #endregion
 
-                HasLoaded = true;
                 Debug.Log("Loaded ---> Save File");
+                HasLoaded = true;
             }
             else
             {
@@ -171,16 +176,34 @@ namespace BarnoGames.Utilities
 
         #endregion
 
+        public void SetOptionsSettings()
+        {
+            prefs.generalSettings.AutoGoIn = OptionsManager.instance.isAutoGoIn;
+            prefs.generalSettings.isFirstLaunch = OptionsManager.instance.isFirstLaunch;
+        }
+
+        private void GetOptionsSettings()
+        {
+            Dictionary<SettingsMap, object> hashMap = new Dictionary<SettingsMap, object>();
+
+            hashMap.Add(SettingsMap.AutoGoIn, prefs.generalSettings.AutoGoIn);
+            hashMap.Add(SettingsMap.FirstLaunch, prefs.generalSettings.isFirstLaunch);
+
+            OptionsManager.instance.SetSetting(hashMap);
+        }
+
         #region Private Helpers
 
         private void setData()
         {
-            prefs.gameManagerSettings.VALUE_TEST = GameManager.SharedInstance.TEXT_VALUE;
+            SetOptionsSettings();
+            //prefs.gameManagerSettings.VALUE_TEST = GameManager.SharedInstance.TEXT_VALUE;
         }
 
         private void getData()
         {
-            GameManager.SharedInstance.TEXT_VALUE = prefs.gameManagerSettings.VALUE_TEST;
+            GetOptionsSettings();
+            //GameManager.SharedInstance.TEXT_VALUE = prefs.gameManagerSettings.VALUE_TEST;
         }
 
         private void LoadIfFileDoesNotExist()

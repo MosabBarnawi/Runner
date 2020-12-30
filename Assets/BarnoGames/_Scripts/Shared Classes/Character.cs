@@ -13,9 +13,9 @@ namespace BarnoGames.Runner2020
         public Rigidbody RB { get; protected set; }
         //public bool CanSwitchPlayers { get; protected set; }
 
-        [SerializeField] private Animator AnimatorController;
+        [SerializeField] private Animator _animatorController;
 
-        public Animator Anim => AnimatorController;
+        public Animator Anim => _animatorController;
 
         #region Player Specific 
         //public bool IAmPlayer { get; protected set; } = false;

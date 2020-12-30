@@ -6,7 +6,7 @@ namespace BarnoGames.Runner2020
 {
     public class DestroyMeTimer : MonoBehaviour
     {
-        [SerializeField] private float Timer = 2f;
-        private void OnEnable() => Destroy(gameObject, Timer);
+        [SerializeField] private float timer = 2f;
+        private void OnEnable() => Destroy(gameObject, timer);
     }
 }

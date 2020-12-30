@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
-
+#if UNITY_EDITOR
 public class KeywordReplace : UnityEditor.AssetModificationProcessor
 {
 
@@ -24,3 +24,4 @@ public class KeywordReplace : UnityEditor.AssetModificationProcessor
         AssetDatabase.Refresh();
     }
 }
+#endif

@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace BarnoGames.Runner2020
 {
+    //TODO:: REMOVE THIS COMPLETLY
     public class GameLauncher : MonoBehaviour
     {
         [SerializeField] SceneReference PlayerScene;

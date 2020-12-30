@@ -71,7 +71,9 @@ namespace BarnoGames.Utilities
             }
             if (!_isInitialized)
             {
-                DontDestroyOnLoad(gameObject);
+                // WILL ONLY BE SET TO DO NOT DESTROY IF ROOT OBJECT
+                if (transform.parent == null) DontDestroyOnLoad(gameObject);
+
                 _isInitialized = true;
                 m_Instance.Init();
             }
