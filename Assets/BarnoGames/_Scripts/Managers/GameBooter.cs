@@ -138,6 +138,8 @@ namespace BarnoGames.Runner2020
         {
             EnableButtons(true, false);
             GameManager.SharedInstance.OnBooted();
+
+            DOTween.KillAll();
         }
 
         private void AnimateGameInitilizedMethod() => StartCoroutine(C_AnimateGameInitilized());

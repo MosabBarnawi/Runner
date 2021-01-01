@@ -77,6 +77,10 @@ namespace BarnoGames.Runner2020
 
         private void OnEnable()
         {
+#if UNITY_EDITOR
+            Application.targetFrameRate = 25;
+            Debug.LogWarning("Targer Frame Frame Rate is Set");
+#endif
             ErrorChecking();
 
             if (PasueButton != null) PasueButton.onClick.AddListener(() => EnablePauseMenu(!PauseMenu.activeSelf));
@@ -341,7 +345,10 @@ namespace BarnoGames.Runner2020
         private void EnablePauseMenu(bool pause)
         {
             //TODO:: CHECK STATES
-            if (CurrentGameState == GameState.WinState) return;
+            if (CurrentGameState != GameState.InGame
+                && CurrentGameState != GameState.Paused
+                && CurrentGameState != GameState.PlayerDeath) return;
+            //if (CurrentGameState == GameState.WinState) return;
 
             if (pause)
             {
