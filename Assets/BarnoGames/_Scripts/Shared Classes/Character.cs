@@ -62,7 +62,6 @@ namespace BarnoGames.Runner2020
         public abstract void isGroundedAnimation();
         public abstract void isJumpAnimation(in bool isJump);
         public virtual void isHardLandAnimation(in bool isHardLand) { }
-        public virtual void isSpeedBoostAnimation(in bool isSpeedUp) { }
         #endregion
     }
 }

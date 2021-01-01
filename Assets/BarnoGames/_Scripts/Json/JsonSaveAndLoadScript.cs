@@ -41,7 +41,7 @@ namespace BarnoGames.Utilities
             {
                 if (value == true)
                 {
-                    GameManager.SharedInstance.OnLoadSaveData();
+                    GameManager.SharedInstance.OnInitilization();
                 }
             }
         }
@@ -179,7 +179,6 @@ namespace BarnoGames.Utilities
         public void SetOptionsSettings()
         {
             prefs.generalSettings.AutoGoIn = OptionsManager.instance.isAutoGoIn;
-            prefs.generalSettings.isFirstLaunch = OptionsManager.instance.isFirstLaunch;
         }
 
         private void GetOptionsSettings()
@@ -187,7 +186,6 @@ namespace BarnoGames.Utilities
             Dictionary<SettingsMap, object> hashMap = new Dictionary<SettingsMap, object>();
 
             hashMap.Add(SettingsMap.AutoGoIn, prefs.generalSettings.AutoGoIn);
-            hashMap.Add(SettingsMap.FirstLaunch, prefs.generalSettings.isFirstLaunch);
 
             OptionsManager.instance.SetSetting(hashMap);
         }
@@ -197,12 +195,22 @@ namespace BarnoGames.Utilities
         private void setData()
         {
             SetOptionsSettings();
+
+            string saveLevel = GameManager.SharedInstance.GetCurrentScene();
+
+            if (saveLevel != Level.EMPTY_LEVEL)
+            {
+                prefs.gameManagerSettings.SavedScene = GameManager.SharedInstance.GetCurrentScene();
+            }
+
             //prefs.gameManagerSettings.VALUE_TEST = GameManager.SharedInstance.TEXT_VALUE;
         }
 
         private void getData()
         {
             GetOptionsSettings();
+            GameManager.SharedInstance.SceneToLoad(prefs.gameManagerSettings.SavedScene);
+            //GameManager.SharedInstance.LoadSpecificLevel(prefs.gameManagerSettings.SavedScene, null);
             //GameManager.SharedInstance.TEXT_VALUE = prefs.gameManagerSettings.VALUE_TEST;
         }
 
@@ -223,7 +231,6 @@ namespace BarnoGames.Utilities
                 File.WriteAllText(_path, _jsonString);
             }
 
-            HasLoaded = true;
             Debug.Log("Cretaed Save File");
         }
 

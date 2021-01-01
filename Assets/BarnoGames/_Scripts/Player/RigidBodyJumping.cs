@@ -101,7 +101,6 @@ namespace BarnoGames.Runner2020
 
             jumpChecker.SkipJumpCheck = false;
 
-            character.isSpeedBoostAnimation(false);
             character.isHardLandAnimation(false);
             character.isJumpAnimation(true);
         }

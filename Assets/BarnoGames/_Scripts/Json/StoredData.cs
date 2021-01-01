@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BarnoGames.Runner2020;
 using System.Collections;
 using UnityEngine;
 
@@ -20,13 +21,12 @@ namespace BarnoGames.Utilities
 
             gameManagerSettings = new GameManagerSettings()
             {
-                //VALUE_TEST = 50
+                SavedScene = Level.EMPTY_LEVEL,
             };
 
             generalSettings = new GeneralSettings()
             {
-                AutoGoIn = true,
-                isFirstLaunch = true,
+                AutoGoIn = false,
             };
         }
 
@@ -39,14 +39,13 @@ namespace BarnoGames.Utilities
         [System.Serializable]
         public struct GameManagerSettings
         {
-            //public int VALUE_TEST;
+            public string SavedScene;
         }
 
         [System.Serializable]
         public struct GeneralSettings
         {
             public bool AutoGoIn;
-            public bool isFirstLaunch; // TODO:: FOR LATER ON TO GO STARIGHT TO LEVEL TRANSITION IF AUTO GOING IN IS ENABLED
         }
     }
 }

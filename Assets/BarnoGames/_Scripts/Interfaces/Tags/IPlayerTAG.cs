@@ -7,7 +7,8 @@ namespace BarnoGames.Runner2020
     {
         void PlayerInWinState();
         void EnableReciveInputControls(bool enabled);
-        void RespawnPlayer(Vector3 positionToSpawn);
-        void PlayerIsFalling(Vector3 positionToSpawn, Action levelHasStartedCallback);
+        void RespawnPlayer(Vector3 positionToSpawn, bool OnLevelStart);
+        //void PlayerIsFalling(Vector3 positionToSpawn, Action levelHasStartedCallback);
+        //void DropPlayer(Vector3 positionToSpawn);
     }
 }

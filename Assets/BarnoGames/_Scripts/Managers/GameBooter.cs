@@ -12,13 +12,6 @@ namespace BarnoGames.Runner2020
 {
     public class GameBooter : MonoBehaviour
     {
-        //[SerializeField] private SceneReference MainGameScene;
-        [SerializeField] private SceneReference PlayerScene;
-        [SerializeField] private SceneReference ManagersScene;
-
-        [SerializeField] private SceneReference DefaultTransitionScene;
-        //[SerializeField] private SceneReference LoadedScene;
-
         [SerializeField] private GameObject LogoImage;
         [SerializeField] private VolumeProfile LogoPPprofile;
 
@@ -48,12 +41,8 @@ namespace BarnoGames.Runner2020
         [SerializeField] private GameObject buttonsPanel;
         [SerializeField] private Button exitButton;
 
-        //public MinFloatParameter DOFValue;
-
         private Transform logoTranform;
         private DepthOfField dofComponent;
-
-        public bool isFirstLaunch { get; set; }
 
         #region Unity Calls
         void Start()
@@ -67,31 +56,38 @@ namespace BarnoGames.Runner2020
             logoTranform = LogoImage.GetComponent<Transform>();
             StartCoroutine(C_LogoAnimation());
 
+            ErrorChecking();
+
             if (startButton != null) startButton.onClick.AddListener(StartGame);
-            else Debug.LogError("start Button not Assigned");
-
             if (optionsButton != null) optionsButton.onClick.AddListener(() => OptionsManager.instance.EnableOptionsScreen(true));
-            else Debug.LogError("Options Button not Assigned");
-
-            if (buttonsPanel == null) Debug.LogError("Buttons Panel Not Assigned");
-
             if (exitButton != null) exitButton.onClick.AddListener(() => { GameManager.SharedInstance.QuitGame(); });
-            else Debug.LogError("Exit Button Not Assigned");
         }
 
         private void OnDestroy()
         {
-            GameManager.SharedInstance.UnRegisterGameState(AnimateGameInitilizedMethod);
             startButton.onClick.RemoveAllListeners();
             optionsButton.onClick.RemoveAllListeners();
             exitButton.onClick.RemoveAllListeners();
         }
         #endregion
 
+        private void ErrorChecking()
+        {
+            if (startButton == null) Debug.LogError("start Button not Assigned");
+
+            if (optionsButton == null) Debug.LogError("Options Button not Assigned");
+
+            if (buttonsPanel == null) Debug.LogError("Buttons Panel Not Assigned");
+
+            if (exitButton == null) Debug.LogError("Exit Button Not Assigned");
+
+            if (LogoImage == null) Debug.LogError("Log Image Not Assigned");
+            if (LogoPPprofile == null) Debug.LogError("Logo Post Processing Not Assigned");
+        }
+
         private void AnimateBootLogo()
         {
             LogoImage.transform.localScale = Vector3.zero;
-            //Transform logo = LogoImage.GetComponent<Transform>();
 
             Sequence seq = DOTween.Sequence();
             Sequence seqFocus = DOTween.Sequence();
@@ -105,27 +101,23 @@ namespace BarnoGames.Runner2020
                 .Join(logoTranform.DOShakeRotation(ShakeDuration, rotationStrength, vibrato, randomness, true))
                 .Join(logoTranform.DOShakePosition(ShakeDuration, strength, vibrato, randomness, false, true));
 
-            seq.OnComplete(OpenMainApplicationLauncher);
+            seq.OnComplete(AnimateGameInitilizedMethod);
         }
 
         private IEnumerator C_AnimateGameInitilized()
         {
-            AsyncOperation operation = SceneManager.LoadSceneAsync(PlayerScene.ScenePath, LoadSceneMode.Additive);
-
-            //operation.completed += (playerAsyncOperation) =>
-            //{
-            //    if (GameManager.SharedInstance == null) Debug.LogError("Game Manager is NULL");
-
-            //    GameManager.SharedInstance.OnBooted();
-            //};
             yield return new WaitForSeconds(startLogoDropAfterSeconds);
 
-            logoTranform.DOMove(logoOutOfViewPostion, dropSpeed);
+            if (OptionsManager.instance.isAutoGoIn) StartGame();
+            else
+            {
+                logoTranform.DOMove(logoOutOfViewPostion, dropSpeed);
 
-            Transform buttonsTransfrom = buttonsPanel.GetComponent<Transform>();
-            buttonsTransfrom.DOScale(1, GrowDurarion);
+                Transform buttonsTransfrom = buttonsPanel.GetComponent<Transform>();
+                buttonsTransfrom.DOScale(1, GrowDurarion);
 
-            EnableButtons(true, true);
+                EnableButtons(true, true);
+            }
         }
 
         private void EnableButtons(bool isActive, bool isInteractable)
@@ -142,52 +134,16 @@ namespace BarnoGames.Runner2020
             exitButton.enabled = isInteractable;
         }
 
-
         private void StartGame()
         {
             EnableButtons(true, false);
-            //startButton.interactable = false;
-            //startButton.enabled = false;
-
-            GameManager.SharedInstance.OnLevelLoading();
-
-            AsyncOperation loadTransitionScene = SceneManager.LoadSceneAsync(DefaultTransitionScene.ScenePath, LoadSceneMode.Single);
-
-            loadTransitionScene.completed += (sceneAsyncOperation) =>
-            {
-                // TRANSITION LEVEL HAS LOADED
-                // LOAD PLAYER IN
-                // TODO :: IF MTIPLE PLAYER SELCTION HANDLE
-                //AsyncOperation operation = SceneManager.LoadSceneAsync(PlayerScene.ScenePath, LoadSceneMode.Additive);
-
-                //operation.completed += (playerAsyncOperation) =>
-                //{
-                if (GameManager.SharedInstance == null) Debug.LogError("Game Manager is NULL");
-
-                GameManager.SharedInstance.OnBooted();
-                //};
-            };
-        }
-
-        private void OpenMainApplicationLauncher()
-        {
-            //TODO:: SCREEN FX AND TRANSITION TO MAIN APPLICATION
-            AsyncOperation operation = SceneManager.LoadSceneAsync(ManagersScene.ScenePath, LoadSceneMode.Additive);
-
-            operation.completed += (asyncOperation) =>
-            {
-                Debug.Log("Finished Logo");
-
-                if (GameManager.SharedInstance == null) Debug.LogError("Game Manager is NULL");
-                GameManager.SharedInstance.RegisterGameState(AnimateGameInitilizedMethod, GameState.Init);
-            };
+            GameManager.SharedInstance.OnBooted();
         }
 
         private void AnimateGameInitilizedMethod() => StartCoroutine(C_AnimateGameInitilized());
 
         private IEnumerator C_LogoAnimation()
         {
-            //TODO;: LOAD USER DATA IF NECESSERY
             dofComponent.focusDistance.value = 0.1f;
             yield return new WaitForSeconds(1f);
             LogoImage.SetActive(true);

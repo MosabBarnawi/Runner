@@ -23,10 +23,7 @@ namespace BarnoGames.Runner2020
             else Debug.LogWarning("Player Script Was not Null Handle this");
 
             PlayerInputControls.SpecialAbility = SwitchPlayers;
-            //MainPlayer.OnDeath += () => PlayerHasDiedGameManagerCallback(GameManager.SharedInstance.PlayerHasDied);
             MainPlayer.OnDeath += () => GameManager.SharedInstance.OnPlayerDeath();
-
-            //SecondaryPlayer.OnDeath += () => PlayerHasDiedGameManagerCallback(GameManager.SharedInstance.PlayerHasDied);
             SecondaryPlayer.OnDeath += () => GameManager.SharedInstance.OnPlayerDeath();
         }
 
@@ -62,38 +59,28 @@ namespace BarnoGames.Runner2020
 
         public void SwitchToMainPlayer() => SwitchPlayers();
 
-        //private void PlayerHasDiedGameManagerCallback(Action playerHasDiedGameManagerCallback)
-        //{
-        //    playerHasDiedGameManagerCallback?.Invoke();
-        //}
-
         private void RestartPlayerSettings()
         {
             currentPlayerType = PlayerType.Empty;
             SwitchPlayers();
         }
 
+        public void WinStateSpecialConditionForSecondCharacter()
+        {
+            MainPlayer.Anim.SetBool(ANIMATIONS_CONSTANTS.IS_LEVEL_END, true);
+        }
+
         public void StartLevel()
         {
             MainPlayer.imove.EnableMovement();
+            GameManager.SharedInstance.OnInGame();
         }
 
-        public void ReSpawnToPosition(Vector3 positionToSpawn)
+        public void ReSpawnToPosition(Vector3 positionToSpawn, bool OnLevelStart)
         {
             RestartPlayerSettings();
-            MainPlayer.Respawn(positionToSpawn);
+            MainPlayer.Respawn(positionToSpawn, OnLevelStart);
         }
-
-        public void PlaceInPosition( Vector3 positionToMove)
-        {
-            MainPlayer.PlaceInPosition(positionToMove);
-        }
-
-        //public void PlayerFalling(Vector3 fallingPosition)
-        //{
-        //    RestartPlayerSettings();
-        //    MainPlayer.GetComponent<IPlayerTAG>().PlayerIsFalling(fallingPosition, () => GameManager.SharedInstance.OnPlayerReady());
-        //}
 
         #region RAY CASTINGS AND SLOPE DETECTION LOGIC
 

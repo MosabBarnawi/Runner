@@ -10,7 +10,7 @@ namespace BarnoGames.Runner2020
         public Action OnDeath;
         protected Action OnAddHealth;
         protected Action OnTakeHit;
-        protected Action<Vector3> OnRespawn;
+        protected Action<Vector3, bool> OnRespawn;
 
         [Space(10)]
         [SerializeField] private LivingEntityHealth entityHealth;
@@ -55,14 +55,13 @@ namespace BarnoGames.Runner2020
 
         public void InstantDie() => Die();
 
-        public void Respawn(Vector3 positionToSpawn)
+        public void Respawn(Vector3 positionToSpawn, bool OnLevelStart)
         {
-            Debug.Log($"{gameObject.name} IS ALIVE");
             IsDead = false;
-            OnRespawn?.Invoke(positionToSpawn);
+            OnRespawn?.Invoke(positionToSpawn, OnLevelStart);
         }
 
-        public abstract void PlaceInPosition(Vector3 position);
+        //public abstract void PlaceInPosition(Vector3 position);
 
         public void QUIC_FIX_IS_ALIVE()
         {

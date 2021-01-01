@@ -82,7 +82,9 @@ namespace BarnoGames.Runner2020
 
             //GameManager.SharedInstance.SlowDown += OnLevelEnd;
             GameManager.SharedInstance.RegisterGameState(OnLevelEnd, GameState.WinState);
+            //GameManager.SharedInstance.RegisterGameState(OnLevelReady, GameState.LevelReady);
             GameManager.SharedInstance.RegisterGameState(OnLevelReady, GameState.LevelReady);
+            GameManager.SharedInstance.RegisterGameState(OnLevelReady, GameState.LevelRestart);
         }
 
         private void OnDisable()

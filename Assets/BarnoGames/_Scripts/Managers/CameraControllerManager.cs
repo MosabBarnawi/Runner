@@ -14,6 +14,8 @@ namespace BarnoGames.Runner2020
         private bool TAP, DOUBLE_TAP, RIGHT, LEFT, UP, DOWN;
         private bool isWinState = false;
 
+        private Transform _target;
+
         [SerializeField] private CinemachineVirtualCamera CameraH;
         [SerializeField] private CinemachineVirtualCamera CameraV;
         [SerializeField] private CinemachineBrain cinemachineBrain;
@@ -21,13 +23,15 @@ namespace BarnoGames.Runner2020
         CinemachineTrackedDolly horizontalDolly;
         CinemachineTrackedDolly verticalDolly;
 
-        [SerializeField] private CinemachineMixingCamera winStateCamera;
-        [SerializeField] private CinemachineVirtualCamera defaultCamera;
-        [SerializeField] private CinemachineVirtualCamera fallingCamera;
+        [SerializeField] private CinemachineStateDrivenCamera stateDrivenCamera;
+        //[SerializeField] private CinemachineMixingCamera winStateCamera;
+        //[SerializeField] private CinemachineVirtualCamera defaultCamera;
+        //[SerializeField] private CinemachineVirtualCamera fallingCamera;
 
         #region Unity Calls
         private void Awake()
         {
+            GameManager.SharedInstance.CameraControllerManager = this;
             GameManager.SharedInstance.RegisterGameState(EnableCameraManager, GameState.Booted);
             gameObject.SetActive(false);
         }
@@ -37,17 +41,23 @@ namespace BarnoGames.Runner2020
             horizontalDolly = CameraH.GetCinemachineComponent<CinemachineTrackedDolly>();
             verticalDolly = CameraV.GetCinemachineComponent<CinemachineTrackedDolly>();
 
-            GameManager.SharedInstance.RegisterGameState(EnableSwipeControls, GameState.WinState);
-            GameManager.SharedInstance.RegisterGameState(DisableSwipeControls, GameState.InGame);
+            GameManager.SharedInstance.RegisterGameState(OnWinState, GameState.WinState);
+            GameManager.SharedInstance.RegisterGameState(FallingCamera, GameState.LevelReady);
+            GameManager.SharedInstance.RegisterGameState(DefaultCamera, GameState.InGame);
         }
 
-        //void LateUpdate()
         void Update()
         {
             MoveCameraInWinstate();
         }
 
         #endregion
+
+        public void SetTarget(Character target)
+        {
+            _target = target.transform;
+            stateDrivenCamera.m_AnimatedTarget = target.Anim;
+        }
 
         private void MoveCameraInWinstate()
         {
@@ -97,6 +107,21 @@ namespace BarnoGames.Runner2020
                 horizontalDolly.m_PathPosition = directionH;
                 verticalDolly.m_PathPosition = directionV;
             }
+        }
+
+        private void OnWinState()
+        {
+            EnableSwipeControls();
+        }
+
+        private void DefaultCamera()
+        {
+            DisableSwipeControls();
+        }
+
+        private void FallingCamera()
+        {
+            DisableSwipeControls();
         }
 
         private void EnableCameraManager() => gameObject.SetActive(true);

@@ -9,24 +9,15 @@ EditorBuildSettings:
     path: Assets/BarnoGames/Scenes/BootUpScreen.unity
     guid: 72d1dac397ecd90438b6eb453bf00e3d
   - enabled: 1
-    path: Assets/BarnoGames/Scenes/ApplicationLaunch.unity
-    guid: bf0cda47d2a492347a1bbfcead029525
-  - enabled: 1
     path: Assets/BarnoGames/Scenes/Player.unity
     guid: ed8ac51cc458b7d40823704d22696925
   - enabled: 1
     path: Assets/BarnoGames/Scenes/Test.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/BarnoGames/Scenes/WinState.unity
-    guid: d4510b1321a8934418c4fc284f541ee8
-  - enabled: 1
     path: Assets/BarnoGames/Scenes/TransitionScene.unity
     guid: c0e3ca083598a9647bcf03d6e5ab7840
   - enabled: 1
     path: Assets/BarnoGames/Scenes/TestLevel.unity
     guid: 40581e4906fed2c49bda2bb95bfc92a2
-  - enabled: 1
-    path: Assets/BarnoGames/Scenes/ManagersScene.unity
-    guid: 92748a4847745ea4db58bc12c222ba8d
   m_configObjects: {}

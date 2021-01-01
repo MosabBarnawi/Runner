@@ -7,6 +7,5 @@ namespace BarnoGames.Runner2020
         void isGroundedAnimation();
         void isJumpAnimation(in bool isJump);
         void isHardLandAnimation(in bool isHashLand);
-        void isSpeedBoostAnimation(in bool isSpeedUp);
     }
 }

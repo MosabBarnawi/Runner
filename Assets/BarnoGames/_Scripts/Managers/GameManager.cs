@@ -10,9 +10,6 @@ using System;
 using TMPro;
 using BarnoUtils;
 
-public enum TEstEnum { Empty, help, good }
-
-
 namespace BarnoGames.Runner2020
 {
     public class GameManager : GameStateManager
@@ -20,12 +17,15 @@ namespace BarnoGames.Runner2020
         public static GameManager SharedInstance { get; private set; }
 
         public int TEXT_VALUE;
+        [SerializeField] private SceneReference PlayerScene;
 
-        //public Button ConsoleButton;
         [SerializeField] private SceneReference fallBackScene;
+        private string _sceneToLoad;
 
         public LevelLocationSpawnerManager CurrentLevel;
-        [SerializeField] private Button RestartButtton;
+        [SerializeField] private Button pauseRestartButton;
+
+        public CameraControllerManager CameraControllerManager { get; set; }
 
         [Space(10)]
         [Header("Top UI")] //TODO SPERATE TO OTHER CLASSES
@@ -39,26 +39,14 @@ namespace BarnoGames.Runner2020
         [SerializeField] private GameObject PauseMenu;
         [SerializeField] private Button OptionsButton;
         [SerializeField] private Button exitButton;
-        private float timescale;
+        private float timescale = 1f;
 
-        //[Space(10)]
-        //[Header("Console")]
-        //[SerializeField] private DeveloperConsoleBehavior developerConsoleBehavior;
-
-        //[Space(10)]//TODO:: MOVE TO POST PROCESSING MANAGER
-        //[Header("Post Processing")]
-        //[SerializeField] private Volume GlobalVolume;
-        //[SerializeField] private VolumeProfile Defualtprofile;
-        //[SerializeField] private VolumeProfile WinStaeprofile;
         [SerializeField] private PostProcessingManager postProcessingManager;
 
         [Space(10)] // END LEVEL
         [Header("Inputs")]
         [SerializeField] private Canvas InputCanavas;
         [SerializeField] private EndLevelUI endLevelUI;
-        //public Action SlowDown;
-        //public Action<bool> SlowDown;
-        //public Action OnWinStateAction;
 
         [Space(10)]
         [Header("Death UI")]
@@ -68,23 +56,11 @@ namespace BarnoGames.Runner2020
         private int deathCounter;
         private int numberOfDeathsToShowAdd = 3;
 
-        //public Action OnLevelFinishedLoading;
-        //public Action<bool> OnWinState;
-
-        //public GameStateManager gameStateManager = new GameStateManager();
-
-
         [Space(10)]
         [Header("FX")]
         public GameObject TeleportFX;
 
         private int PointsCount;
-        public event EventHandler<TestingM> OnCollectedItem;
-        public class TestingM : EventArgs
-        {
-            public int counter;
-            public TEstEnum estEnum;
-        }
 
         #region Unity Callbacks
         void Awake()
@@ -104,10 +80,9 @@ namespace BarnoGames.Runner2020
             ErrorChecking();
 
             if (PasueButton != null) PasueButton.onClick.AddListener(() => EnablePauseMenu(!PauseMenu.activeSelf));
-            //if (ConsoleButton != null) ConsoleButton.onClick.AddListener(ToggleConsoleScreen);
             if (DeathRestartButton != null) DeathRestartButton.onClick.AddListener(OnPlayerRestarting);
             if (PlaceHolderAdd != null) PlaceHolderAdd.onClick.AddListener(OnPlayerRestarting);
-            if (RestartButtton != null) RestartButtton.onClick.AddListener(OnPlayerRestarting);
+            if (pauseRestartButton != null) pauseRestartButton.onClick.AddListener(OnPlayerRestarting);
             if (OptionsButton != null) OptionsButton.onClick.AddListener(() => OptionsManager.instance.EnableOptionsScreen(true));
             if (exitButton != null) exitButton.onClick.AddListener(QuitGame);
         }
@@ -115,10 +90,9 @@ namespace BarnoGames.Runner2020
         private void OnDisable()
         {
             if (PasueButton != null) PasueButton.onClick.RemoveAllListeners();
-            //if (ConsoleButton != null) ConsoleButton.onClick.RemoveAllListeners();
             if (DeathRestartButton != null) DeathRestartButton.onClick.RemoveAllListeners();
             if (PlaceHolderAdd != null) PlaceHolderAdd.onClick.RemoveAllListeners();
-            if (RestartButtton != null) RestartButtton.onClick.RemoveAllListeners();
+            if (pauseRestartButton != null) pauseRestartButton.onClick.RemoveAllListeners();
             if (OptionsButton != null) OptionsButton.onClick.RemoveAllListeners();
             if (exitButton != null) exitButton.onClick.RemoveAllListeners();
         }
@@ -143,69 +117,66 @@ namespace BarnoGames.Runner2020
             if (PasueButton == null) Debug.LogError("Pause Button not Assigned");
             if (DeathRestartButton == null) Debug.LogError("Restart Button not Assigned");
             if (PlaceHolderAdd == null) Debug.LogError("Place Holder Ad Button not Assigned");
-            if (RestartButtton == null) Debug.LogError("Restart Button Button not Assigned");
+            if (pauseRestartButton == null) Debug.LogError("Restart Button Button not Assigned");
             if (OptionsButton == null) Debug.LogError("Options Button not Assigned");
             if (exitButton == null) Debug.LogError("Exit Button is Not Assigned");
+
+            if (endLevelUI == null) Debug.LogError("End Level Ui Not Assigned");
+            if (PlayerScene == null) Debug.LogError("Player Scene Not Assigned");
         }
 
         #region Game State Manager Overrides
-        public override void OnLoadSaveData()
-        {
-            base.OnLoadSaveData();
-            //BarnoDebug.Log($"{name}", "..OnLoadSaveData", BarnoColor.SunYellow);
-
-            // TODO:: IMPLEMET LEVEL TO LOAD
-            // BY THIS POING WE SHOULD HAVE ALL OUR DATA
-            OnInitilization();
-        }
         public override void OnInitilization()
         {
             base.OnInitilization();
 
             EnableTopUI(false);
-            //EnablePauseMenu(false);
-            EnableButtonInputCanvas(false); //TODO:: CHANGE TO ENUM INSTEAD OF BOOL MAYBE
+            EnableButtonInputCanvas(false);
 
-            //postProcessingManager.SetPostProcessingType(PostProcesingType.Default);
-            //BarnoDebug.Log($"{name}", "..OnInitilization", BarnoColor.SunYellow);
+            RegisterGameState(() => EnableTopUI(false), GameState.WinState);
+
+            //TODO SPAWN PLAYER
+            AsyncOperation operation = SceneManager.LoadSceneAsync(PlayerScene.ScenePath, LoadSceneMode.Additive);
+            operation.completed += (sceneAsyncOperation) =>
+            {
+
+            };
         }
 
         public override void OnBooted()
         {
             base.OnBooted();
 
-            // GET LEVEL INFO AND SET PLAYER SETTINGS
-            PlayerInputControls.PlayerScript.PlaceInPosition(CurrentLevel.SpawnPosition.position);
+            if (_sceneToLoad != Level.EMPTY_LEVEL)
+            {
+                Debug.Log(_sceneToLoad + "....................");
+                LoadSpecificLevel(_sceneToLoad);
+            }
+            else
+            {
+                LoadSpecificLevel(fallBackScene);
+            }
         }
 
-        public override void OnLevelTransition() { }
         public override void OnLevelRestart()
         {
-            StartCoroutine(C_DelayLevelRestart()); // REMOVE THIS AFTER TESTING
+            base.OnLevelRestart();
+            AsyncOperation operation = SceneManager.LoadSceneAsync(CurrentLevel.CurrentScene, LoadSceneMode.Single);
         }
-        public override void OnLevelLoading() { base.OnLevelLoading(); }
-        public override void OnLevelFinishedLoading() { }
         public override void OnLevelReady()
         {
             base.OnLevelReady();
-            PlayerInputControls.PlayerScript.ReSpawnToPosition(CurrentLevel.SpawnPosition.position);
+
+            postProcessingManager.SetPostProcessingType(PostProcesingType.Default);
+            PlayerInputControls.PlayerScript.ReSpawnToPosition(CurrentLevel.SpawnPosition.position, true);
         }
 
-        public override void OnPlayerSpawning() { }
-        public override void OnPlayerReady()
-        {
-            base.OnPlayerReady();
-            EnableButtonInputCanvas(true);
-        }
         public override void OnPlayerRestarting()
         {
-            //CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
-            PlayerInputControls.PlayerScript.ReSpawnToPosition(CurrentLevel.SpawnPosition.position);
+            base.OnPlayerRestarting();
 
-
-            EnableDeathUI(false);
-            EnableButtonInputCanvas(true);
-            //OnLevelFinishedLoading?.Invoke();
+            PlayerInputControls.PlayerScript.ReSpawnToPosition(CurrentLevel.PlayerRespawnPosition.position, false);
+            OnInGame();
         }
         public override void OnPlayerDeath()
         {
@@ -217,27 +188,39 @@ namespace BarnoGames.Runner2020
 
         public override void OnInGame()
         {
-            base.OnInGame();
+            if (CurrentGameState != GameState.PlayerDeath && CurrentGameState != GameState.WinState)
+            {
+                base.OnInGame();
+
+                EnableDeathUI(false);
+                EnableButtonInputCanvas(true);
+                EnableTopUI(true);
+            }
+
+            Time.timeScale = timescale;
+            PauseMenu.SetActive(false);
+            XText.text = "II";
+
         }
         public override void OnPaused()
         {
-            base.OnPaused();
+            if (CurrentGameState != GameState.PlayerDeath && CurrentGameState != GameState.WinState)
+            {
+                base.OnPaused();
+            }
+
+            PauseMenu.SetActive(true);
+            XText.text = "X";
+            timescale = Time.timeScale;
+            Time.timeScale = TIME_CONSTANTS.PAUSE_TIME;
         }
-        public override void OnShowingAD() { }
+        public override void OnShowingAD() { base.OnShowingAD(); }
         public override void OnWinState()
         {
             base.OnWinState();
 
-            //SlowDown?.Invoke(true);
-            //OnWinStateAction?.Invoke();
-            //GameSateChange(GameState.WinState);
-
             EnableButtonInputCanvas(false);
-            //endLevelUI.EnableScreen(true);
-            //SetPostProcessingType(true);
-            //SetDefaultGameState(true);
-
-            SceneManager.LoadScene(4, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+            postProcessingManager.SetPostProcessingType(PostProcesingType.WinState);
         }
 
         public void QuitGame()
@@ -251,29 +234,45 @@ namespace BarnoGames.Runner2020
         }
 
         #endregion
-        //public void LevelStart()
-        //{
-        //    EnableButtonInputCanvas(true);
-        //}
 
-        public void LoadSpecificLevel(SceneReference LevelToLoad, Action callback) //TOOD:: REMOVE THIS
+        private bool SavableCondition()
         {
-            AsyncOperation operation = SceneManager.LoadSceneAsync(LevelToLoad.ScenePath, LoadSceneMode.Single);
+            if (CurrentGameState == GameState.LevelReady
+                || CurrentGameState == GameState.InGame
+                || CurrentGameState == GameState.Paused)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public string GetCurrentScene()
+        {
+            if (SavableCondition())
+            {
+                return CurrentLevel.CurrentScene;
+            }
+            return Level.EMPTY_LEVEL;
+        }
+
+        public void SceneToLoad(string sceneReference)
+        {
+            _sceneToLoad = sceneReference;
+        }
+
+        private void LoadSpecificLevel(string LevelToLoad)
+        {
+            AsyncOperation operation = SceneManager.LoadSceneAsync(LevelToLoad, LoadSceneMode.Single);
 
             operation.completed += (asyncOperation) =>
             {
                 Debug.Log("Finished");
-
-                CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
-
-                //EnableButtonInputCanvas(true);
-                callback?.Invoke();
-                //ResetLevelOnFinish();
+                //OnLevelReady();
             };
         }
 
         #region On Player Deadth 
-        //public void PlayerHasDied() => EnableDeathUI(true); // CALLED FROM PLAYER SCRIPT TO DO GAME MANAGER THINGS RELATING TO PLAYERS DEATH
         private void EnableDeathUI(bool enable)
         {
             DeathCanvas.gameObject.SetActive(enable);
@@ -311,132 +310,22 @@ namespace BarnoGames.Runner2020
             }
         }
 
-
-        //private void RestartLevelOnDeath() // change to RestartLevel
-        //{
-        //    //CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
-        //    PlayerInputControls.PlayerScript.ReSpawnToPosition(CurrentLevel.SpawnPosition.position);
-
-
-        //    EnableDeathUI(false);
-        //    EnableButtonInputCanvas(true);
-        //    //OnLevelFinishedLoading?.Invoke();
-        //}
-
         #endregion
 
         #region Public API
 
         #region Leveling Managment
-
-        //private void SetDefaultGameState(bool winState)
-        //{
-        //    //SetPostProcessingType(winState);
-        //    postProcessingManager.SetPostProcessingType(winState);
-        //    //endLevelUI.EnableScreen(winState);
-        //    //SlowDown?.Invoke(winState);
-
-        //    if (!winState)
-        //    {
-        //        CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
-        //        Vector3 newSpawnPositon = new Vector3(CurrentLevel.SpawnPosition.position.x, 20, CurrentLevel.SpawnPosition.position.z);
-        //        PlayerInputControls.PlayerScript.PlayerFalling(newSpawnPositon);
-        //    }
-        //}
-
-        //private void SetPostProcessingType(bool winState) //TODO:: MOVE TO POST PROCESSING MANAGER
-        //{
-        //    if (winState)
-        //    {
-        //        GlobalVolume.profile = WinStaeprofile;
-        //    }
-        //    else
-        //    {
-        //        GlobalVolume.profile = Defualtprofile;
-        //        Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
-        //    }
-
-        //    //OnWinState?.Invoke(winState);
-        //}
-
-        //public void ResetLevelOnFinish()
-        //{
-        //    StartCoroutine(DelayLevelRestart()); // REMOVE THIS AFTER TESTING
-        //}
-
         public void GoToNextLevel()
         {
-            StartCoroutine(C_DelayTransition()); // REMOVE THIS AFTER TESTING
-        }
-
-        #endregion
-
-        int LevelToLoad = 4;
-        private IEnumerator C_DelayTransition()
-        {
-            yield return new WaitForSecondsRealtime(0.5f);
-
-            //if (CurrentLevel.LevelIndex == 3)
-            //{
-            //    LevelToLoad = 4;
-            //}
-            //else if (CurrentLevel.LevelIndex == 4)
-            //{
-            //    LevelToLoad = 3;
-            //}
-
-            AsyncOperation transiionLoadOperation = SceneManager.LoadSceneAsync(CurrentLevel.SceneToLoad.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
+            AsyncOperation transiionLoadOperation = SceneManager.LoadSceneAsync(CurrentLevel.SceneToLoad, UnityEngine.SceneManagement.LoadSceneMode.Single);
 
             transiionLoadOperation.completed += (asyncOperation) =>
             {
-                //endLevelUI.EnableScreen(false);
-                CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
-                //SetDefaultGameState(false);
 
-                //PlayerInputControls.PlayerScript.ReSpawnToPosition(CurrentLevel.SpawnPosition.position);
-                //PlayerInputControls.Player.PlayerFalling();
-                //Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
-
-                StartCoroutine(C_DelayNextLevelLoad());
             };
         }
 
-        private IEnumerator C_DelayNextLevelLoad()
-        {
-            yield return new WaitForSecondsRealtime(1);
-
-            AsyncOperation loadNextLevelOperation = SceneManager.LoadSceneAsync(LevelToLoad, UnityEngine.SceneManagement.LoadSceneMode.Single);
-
-            loadNextLevelOperation.completed += (asyncOperation) =>
-            {
-                CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
-                //SetDefaultGameState(false);
-
-                //GameSateChange(GameState.LevelFinishedLoading);
-            };
-        }
-
-        private IEnumerator C_DelayLevelRestart()
-        {
-            yield return new WaitForSecondsRealtime(1);
-
-            AsyncOperation reloadLevelOperation = SceneManager.LoadSceneAsync(CurrentLevel.CurrentScene.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
-
-            reloadLevelOperation.completed += (asyncOperation) =>
-            {
-                //SetDefaultGameState(false);
-
-                CurrentLevel = FindObjectOfType<LevelLocationSpawnerManager>();
-
-                EnableDeathUI(false); // REMOVE THIS IS BUTTONS SHOWING BEFORE PLAYER LANDS
-
-                //TODO:: THIS IS FOR TESTING
-                //if (PauseMenu.activeSelf) TogglePauseMenu();
-                //OnLevelFinishedLoading?.Invoke();
-                //GameSateChange(GameState.LevelFinishedLoading);
-            };
-
-        }
+        #endregion
 
         public void AddPoints(int value, Action Collect)
         {
@@ -449,50 +338,21 @@ namespace BarnoGames.Runner2020
 
         #endregion
         #region Private API
-
-        //private void ToggleConsoleScreen()
-        //{
-        //    if (developerConsoleBehavior != null)
-        //    {
-        //        if (Input.GetKeyDown(KeyCode.BackQuote))
-        //        {
-        //            developerConsoleBehavior.ToggleOptionsMenu();
-        //        }
-        //    }
-        //}
-
         private void EnablePauseMenu(bool pause)
         {
             //TODO:: CHECK STATES
-            // TODO :: HANDLE WHEN ON PAUSE WHILE IN LOGO SCENE
-            if (CurrentGameState != GameState.InGame) return;
+            if (CurrentGameState == GameState.WinState) return;
 
-                PauseMenu.SetActive(pause);
-
-                if (pause)
-                {
-                    // PAUSE GAME
-                    timescale = Time.timeScale;
-                    XText.text = "X";
-                    Time.timeScale = TIME_CONSTANTS.PAUSE_TIME;
-
-                    //OnPaused();
-                }
-                else
-                {
-                    // RESUME GAME
-                    XText.text = "II";
-                    //Time.timeScale = TIME_CONSTANTS.NORMAL_TIME;
-                    Time.timeScale = timescale; //TODO :: MAYBE KEEP SLOW MOTION FOR END OF LEVEL
-
-                    //OnInGame();
-                }
-        }
-
-        private void SendMessageOut()
-        {
-            PointsCount++;
-            OnCollectedItem?.Invoke(this, new TestingM { counter = PointsCount, estEnum = TEstEnum.help });
+            if (pause)
+            {
+                // PAUSE GAME
+                OnPaused();
+            }
+            else
+            {
+                // RESUME GAME
+                OnInGame();
+            }
         }
         #endregion
     }

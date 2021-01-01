@@ -94,7 +94,11 @@ namespace BarnoGames.Runner2020
         {
             canMove = false;
             character.RB.velocity = Vector3.zero;
-            Debug.Log("STOP");
+
+            if (freezeInSpace)
+                Debug.Log("STOP - frozen in Place");
+            else
+                Debug.Log("STOP");
 
             //if (freezeInSpace) character.RB.isKinematic = true; //TODO:: FIX WARRNING
             character.RB.isKinematic = freezeInSpace; //TODO:: FIX WARRNING

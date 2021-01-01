@@ -15,8 +15,6 @@ namespace BarnoGames.Runner2020
         [Space(5)]
         [SerializeField] private float RaycastDistanceForward = 0.8f;
 
-        [SerializeField] private PlayerType playerType = PlayerType.Secondary;
-
         private Collider currentCollider;
         [SerializeField] private Player playerScript;
 
@@ -37,8 +35,6 @@ namespace BarnoGames.Runner2020
             if (playerScript == null) Debug.LogError($"Player Script Not Assigned {gameObject.name}");
 
             currentCollider = GetComponent<Collider>();
-
-            OnFirstSpawn();
         }
 
         private void OnEnable()
@@ -54,8 +50,6 @@ namespace BarnoGames.Runner2020
             OnAddHealth += AddHealthFX;
             OnTakeHit += TakeHit;
             OnRespawn += RespawnPlayer;
-
-            //GameManager.SharedInstance.OnPlayerRespawn = Respawn;
         }
 
         void Update()
@@ -76,11 +70,14 @@ namespace BarnoGames.Runner2020
             }
         }
 
+        private void OnDisable()
+        {
+            GameManager.SharedInstance.UnRegisterGameState(PlayerInWinState);
+        }
+
         private void OnDestroy()
         {
-            //GameManager.SharedInstance.OnWinStateAction -= PlayerInWinState;
-            GameManager.SharedInstance.UnRegisterGameState(PlayerInWinState, GameState.WinState);
-
+            GameManager.SharedInstance.UnRegisterGameState(PlayerInWinState);
             PlayerInputControls.MainAbilityAction -= MainAbility;
         }
         #endregion
@@ -90,7 +87,6 @@ namespace BarnoGames.Runner2020
             PlayerInputControls.Player = this;
 
             PlayerInputControls.MainAbilityAction = MainAbility;
-            //GameManager.SharedInstance.OnWinStateAction = PlayerInWinState;
             GameManager.SharedInstance.RegisterGameState(PlayerInWinState, GameState.WinState);
 
             if (IsDead)
@@ -99,10 +95,6 @@ namespace BarnoGames.Runner2020
                 QUIC_FIX_IS_ALIVE();
                 Debug.Log("Was Dead");
             }
-        }
-        private void OnFirstSpawn()
-        {
-
         }
 
         protected override bool CheckIfGrounded()
@@ -119,40 +111,37 @@ namespace BarnoGames.Runner2020
 
             hitGround = forwardGrounded || middleGrounded || backwardGrounded;
 
-            if (playerType == PlayerType.MainPlayer)
+            if (forwardPositon != null)
             {
-                if (forwardPositon != null)
-                {
-                    Enemy forwardEnemy = forwardPositon.GetComponent<Enemy>();
+                Enemy forwardEnemy = forwardPositon.GetComponent<Enemy>();
 
-                    if (forwardEnemy != null)
-                    {
-                        Debug.Log("F: ENemy");
-                        imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
-                                                   //TODO:: RESET PLAYER
-                    }
+                if (forwardEnemy != null)
+                {
+                    Debug.Log("F: ENemy");
+                    imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
+                                               //TODO:: RESET PLAYER
                 }
-                else if (middlePositon != null)
+            }
+            else if (middlePositon != null)
+            {
+                Enemy MiddleEnemy = middlePositon.GetComponent<Enemy>();
+
+                if (MiddleEnemy != null)
                 {
-                    Enemy MiddleEnemy = middlePositon.GetComponent<Enemy>();
-
-                    if (MiddleEnemy != null)
-                    {
-                        Debug.Log("M: ENemy");
-                        imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
-                                                   //TODO:: RESET PLAYER
-                    }
-
+                    Debug.Log("M: ENemy");
+                    imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
+                                               //TODO:: RESET PLAYER
                 }
-                else if (backwardPositon != null)
+
+            }
+            else if (backwardPositon != null)
+            {
+                Enemy backEnemy = backwardPositon.GetComponent<Enemy>();
+                if (backEnemy != null)
                 {
-                    Enemy backEnemy = backwardPositon.GetComponent<Enemy>();
-                    if (backEnemy != null)
-                    {
-                        Debug.Log("B: ENemy");
-                        imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
-                                                   //TODO:: RESET PLAYER
-                    }
+                    Debug.Log("B: ENemy");
+                    imove.StopMovement(false); // STOP PLAYER MOVEMENT FOR NOT THIS NEEDS TO CHANGE 
+                                               //TODO:: RESET PLAYER
                 }
             }
 
@@ -179,8 +168,6 @@ namespace BarnoGames.Runner2020
         {
             bool HitWall;
 
-            //if (isNonAlocRayCastForwad)
-            //{
             int hits = Physics.RaycastNonAlloc(RB.position, RB.transform.TransformDirection(Vector3.right), raycasts, RaycastDistanceForward, ForwardDetectionLayerMask);
 
             HitWall = hits > 0 ? true : false;
@@ -203,8 +190,6 @@ namespace BarnoGames.Runner2020
                     }
                 }
             }
-
-
             Debug.DrawRay(RB.position, new Vector3(RaycastDistanceForward, 0, 0), Color.red);
         }
 
@@ -219,16 +204,13 @@ namespace BarnoGames.Runner2020
 
         public override void isHardLandAnimation(in bool isHashLand) { }
 
-        public override void isSpeedBoostAnimation(in bool isSpeedUp) { }
-
         #endregion
 
         #region IPlayerTAG interface
         public void PlayerInWinState()
         {
             playerScript.SwitchToMainPlayer();
-            Anim.SetBool(ANIMATIONS_CONSTANTS.IS_LEVEL_END, true);
-            imove.StopMovement(true);
+            playerScript.WinStateSpecialConditionForSecondCharacter();
         }
 
         public void EnableReciveInputControls(bool enabled) => CanControl = enabled;
@@ -237,32 +219,7 @@ namespace BarnoGames.Runner2020
         {
             //TODO :: REPSANW FX
             Debug.LogError("This Should Have Not Been Called");
-            ////IF TOUCED GROUND =>
-            //if (IsGrounded)
-            //{
             imove.EnableMovement();
-
-            // DO FLAT LANFING SETTINGS THEN MOVE
-            //}
-        }
-
-        public void PlayerIsFalling(Vector3 positionToSpawn, Action levelHasStartedCallback)
-        {
-            Debug.LogError("This Should Have Not Been Called");
-
-            Respawn(positionToSpawn);
-            EnableReciveInputControls(false);
-            imove.StopMovement(true);
-
-            //Anim.SetBool(ANIMATIONS_CONSTANTS.IS_PLAYER_FALLING, true);
-            //Anim.SetBool(ANIMATIONS_CONSTANTS.IS_LEVEL_END, false);
-
-
-            //if (IsGrounded)
-            //{
-            //    // DO FLAT LANFING SETTINGS THEN MOVE
-            //    StartCoroutine(DelayStartMoving(levelHasStartedCallback));
-            //}
         }
 
         private IEnumerator DelayStartMoving(Action levelHasStartedCallback)
@@ -300,7 +257,7 @@ namespace BarnoGames.Runner2020
 
         public void MainAbility()
         {
-            if (!canSmash /*&& playerType == PlayerType.Secondary*/)
+            if (!canSmash)
             {
                 Debug.Log("ATTACK BALL");
                 canSmash = true;
@@ -315,11 +272,8 @@ namespace BarnoGames.Runner2020
             Debug.Log("Died");
             gameObject.SetActive(false);
             imove.StopMovement(false);
-            //ShardBehavior.HardResetShard();
 
             Instantiate(DeathFX, RB.transform.position, DeathFX.transform.rotation);
-
-            //PlayerHasDiedAction?.Invoke();
         }
 
         private void AddHealthFX()
@@ -332,7 +286,7 @@ namespace BarnoGames.Runner2020
         }
 
         protected override void SlopPlayerAngleAdjustment(in bool hitGround, in Transform forwardPosition, in Transform middlePosition, in Transform backwardPosition) => throw new System.NotImplementedException();
-        public override void PlaceInPosition(Vector3 position) => throw new NotImplementedException();
+        public void RespawnPlayer(Vector3 positionToSpawn, bool OnLevelStart) => throw new NotImplementedException();
 
         #endregion
     }

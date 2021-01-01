@@ -31,17 +31,20 @@ namespace BarnoGames.Runner2020
         private const string ANIM_IS_GROUNDED = "isGrounded";
         private const string ANIM_JUMP = "Jump";
         private const string ANIM_HARD_LAND = "HardLand";
-        private const string ANIM_SPEED_UP = "SpeedUp";        
         private const string ANIM_LEVEL_END = "EndLevel";
         private const string ANIM_PLAYER_FALLING = "isFalling";
 
 
         internal readonly static int MOVEMENT_SPEED_HASH = Animator.StringToHash(ANIM_MOVEMENT_SPEED);
         internal readonly static int HARD_LAND_HASH = Animator.StringToHash(ANIM_HARD_LAND);
-        internal readonly static int SPEED_UP_HASH = Animator.StringToHash(ANIM_SPEED_UP);
         internal readonly static int IS_JUMP_HASH = Animator.StringToHash(ANIM_JUMP);
         internal readonly static int IS_GROUNDED_HASH = Animator.StringToHash(ANIM_IS_GROUNDED);
         internal readonly static int IS_LEVEL_END = Animator.StringToHash(ANIM_LEVEL_END);
         internal readonly static int IS_PLAYER_FALLING = Animator.StringToHash(ANIM_PLAYER_FALLING);
+    }
+
+    public class Level
+    {
+        internal const string EMPTY_LEVEL = "EMPTY_LEVEL";
     }
 }

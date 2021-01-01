@@ -17,8 +17,7 @@ namespace BarnoGames.Runner2020
         [SerializeField] private Toggle autoGoinToggle;
 
         private bool _isAutoGoInToGame { get; set; }
-        private bool _isFirstLaunch { get; set; }
-        
+
         #region Properties
         public bool isAutoGoIn
         {
@@ -26,10 +25,10 @@ namespace BarnoGames.Runner2020
             private set
             {
                 _isAutoGoInToGame = value;
+                autoGoinToggle.isOn = value;
                 JsonSaveAndLoadScript.instance.SetOptionsSettings();
             }
         }
-        public bool isFirstLaunch { get { return _isAutoGoInToGame; } private set {_isAutoGoInToGame = value; } }
         #endregion
 
         #region Unity Calls
@@ -43,25 +42,24 @@ namespace BarnoGames.Runner2020
         public void SetSetting(Dictionary<SettingsMap, object> hasmap)
         {
             object hash_isAutoGoIn;
-            object hash_isFirstLaunch;
             hasmap.TryGetValue(SettingsMap.AutoGoIn, out hash_isAutoGoIn);
-            hasmap.TryGetValue(SettingsMap.FirstLaunch, out hash_isFirstLaunch);
 
             isAutoGoIn = (bool)hash_isAutoGoIn;
-            autoGoinToggle.isOn = isAutoGoIn;
-
-            isFirstLaunch = (bool)hash_isFirstLaunch;
         }
 
         public void EnableOptionsScreen(bool enable)
         {
             optionsCanvas.SetActive(enable);
+
+            if (enable)
+            {
+                autoGoinToggle.isOn = isAutoGoIn;
+            }
         }
 
         private void ToggleAutoGoIn()
         {
             isAutoGoIn = !isAutoGoIn;
-            autoGoinToggle.isOn = isAutoGoIn;
         }
     }
 }

@@ -2,32 +2,46 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using BarnoGames.Utilities;
 using System.Collections;
-using UnityEngine.UI;
 using UnityEngine;
 
 namespace BarnoGames.Runner2020
 {
-    public class LevelLocationSpawnerManager : MonoBehaviour // TODO:: CHANGE TO SCRIPTABLE OBJECT AND LET LEVEL MANAGER HANDLE THE SPAWN POSITIONS INSTEAD
+    public class LevelLocationSpawnerManager : MonoBehaviour
     {
+        [Tooltip("If True Will Call OnLevelReady()")]
+        [SerializeField] private bool autoInitilized = false;
         [SerializeField] private SceneReference _currentScene;
         [SerializeField] private SceneReference _sceneToLoad;
 
-        [SerializeField] private Transform spawnPoint;
+        [SerializeField] private Transform _spawnPoint;
+        [SerializeField] private Transform _playerRespanPositionAfterDeath;
 
-        //[SerializeField] private int levelIndex;
-        public Transform SpawnPosition => spawnPoint;
+        #region Properties
+        public Transform SpawnPosition => _spawnPoint;
+        public Transform PlayerRespawnPosition => _playerRespanPositionAfterDeath;
         public SceneReference CurrentScene => _currentScene;
         public SceneReference SceneToLoad => _sceneToLoad;
+        #endregion
 
-        //public int LevelIndex => levelIndex;
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (autoInitilized)
+            {
+                if (_currentScene == null) Debug.LogError("Current Scene Must be Assigned");
+                if (_sceneToLoad == null) Debug.LogError("Scene To Load Must be Assigned");
+            }
+        }
+#endif
 
         private void OnEnable()
         {
-            //TODO:: SHOULD BE DONE WHEN A CONDITION IS MET
             GameManager.SharedInstance.CurrentLevel = this;
-            GameManager.SharedInstance.OnLevelReady();
-            //levelIndex = SceneManager.GetActiveScene().buildIndex; //TODO:: THIS MIGHT CAUSE ISSUES
-            //levelIndex = SceneManager.GetActiveScene().buildIndex; 
+
+            if (autoInitilized)
+            {
+                GameManager.SharedInstance.OnLevelReady();
+            }
         }
     }
 }

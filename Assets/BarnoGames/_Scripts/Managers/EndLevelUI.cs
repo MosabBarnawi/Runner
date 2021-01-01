@@ -33,28 +33,30 @@ namespace BarnoGames.Runner2020
 
         private void Start()
         {
-            EnableScreen(false);
+            EnableEndOfLevelUIScreen(false);
+            GameManager.SharedInstance.RegisterGameState(OnWinState, GameState.WinState);
         }
 
         #endregion
 
-        public void EnableScreen(bool isActive)
+        private void OnWinState() => EnableEndOfLevelUIScreen(true);
+
+        private void EnableEndOfLevelUIScreen(bool isActive)
         {
             canvas.gameObject.SetActive(isActive);
 
-            //if (isActive) StartCoroutine(SlowMotion());
             if (isActive) StartCoroutine(SlowMotion2());
         }
 
         private void NextLevelClicked()
         {
-            EnableScreen(false);
+            EnableEndOfLevelUIScreen(false);
             GameManager.SharedInstance.GoToNextLevel();
         }
 
         private void RestartLevelClick()
         {
-            EnableScreen(false);
+            EnableEndOfLevelUIScreen(false);
             GameManager.SharedInstance.OnLevelRestart();
         }
 
@@ -64,7 +66,7 @@ namespace BarnoGames.Runner2020
             imageFadeout.gameObject.SetActive(false);
             yield return new WaitForSeconds(activationToImageFadeWait);
             Time.timeScale = winStateTimeSpeed;
-        }    
+        }
         private IEnumerator SlowMotion()
         {
             canvas.gameObject.SetActive(true);
